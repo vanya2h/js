@@ -347,7 +347,44 @@ export async function fetchContractMetadataFromAddress(
   address: string,
   provider: ethers.providers.Provider,
   storage: ThirdwebStorage,
-) {
+): Promise<PublishedMetadata> {
+  // try the contract metadata regsitry
+  const etherscanResponse = await fetch(
+    `https://api-goerli.etherscan.io/api?module=contract&action=getsourcecode&address=${address}&apikey=...`,
+  );
+  try {
+    let data = await etherscanResponse.json();
+    console.log({ data });
+    if (data.result[0].Proxy === "1") {
+      const implementationAddress = data.result[0].Implementation;
+      const implementationData = await fetch(
+        `https://api-goerli.etherscan.io/api?module=contract&action=getsourcecode&address=${implementationAddress}&apikey=...`,
+      );
+      data = await implementationData.json();
+      console.log({ implementationData: data });
+    }
+    const name = data.result[0].ContractName;
+    let metadata;
+    if (data.result[0].SourceCode.startsWith("{")) {
+      // solc input (weirdly in double brackets)
+      metadata = JSON.parse(data.result[0].SourceCode.slice(1, -1));
+    } else {
+      // plain file
+      metadata = {
+        sources: [{ [name]: data.result[0].SourceCode }],
+      };
+    }
+    return {
+      name,
+      abi: JSON.parse(data.result[0].ABI),
+      metadata,
+      info: {},
+      licenses: data.result[0].LicenseType ? [data.result[0].LicenseType] : [],
+    };
+  } catch (e) {
+    console.error("JOEE", e);
+    // ignore
+  }
   const compilerMetadataUri = await resolveContractUriFromAddress(
     address,
     provider,
@@ -405,7 +442,9 @@ export async function fetchSourceFilesFromMetadata(
     Object.entries(publishedMetadata.metadata.sources).map(
       async ([path, info]) => {
         const urls = (info as any).urls as string[];
-        const ipfsLink = urls.find((url) => url.includes("ipfs"));
+        const ipfsLink = urls
+          ? urls.find((url) => url.includes("ipfs"))
+          : undefined;
         if (ipfsLink) {
           const ipfsHash = ipfsLink.split("ipfs/")[1];
           // 5 sec timeout for sources that haven't been uploaded to ipfs
@@ -423,7 +462,9 @@ export async function fetchSourceFilesFromMetadata(
         } else {
           return {
             filename: path,
-            source: "Could not find source for this contract",
+            source:
+              (info as any).content ||
+              "Could not find source for this contract",
           };
         }
       },

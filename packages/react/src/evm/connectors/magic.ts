@@ -62,6 +62,8 @@ export class MagicConnector extends Connector {
     const { apiKey, ...options } = this.options;
     const configuration = this.getConfiguration();
 
+    console.log(this.options, configuration);
+
     try {
       invariant(
         configuration,
@@ -72,9 +74,38 @@ export class MagicConnector extends Connector {
       }
 
       return import("magic-sdk").then(async (m) => {
-        this.magic = new m.Magic(apiKey, options);
+        // Here, configuration contains things like "email"
+        // If it contains a "socialProvider" field, then it's a social login
+        // @ts-ignore
+        if (configuration.socialProvider) {
+          const mOauth = await import("@magic-ext/oauth");
 
-        await this.magic.auth.loginWithMagicLink(configuration);
+          const magic = new m.Magic(apiKey, {
+            ...options,
+            extensions: [new mOauth.OAuthExtension()],
+          });
+
+          const result = await magic.oauth.getRedirectResult();
+
+          console.log("RESULT:", result);
+
+          if (result) {
+            // @ts-ignore
+            this.setConfiguration(result.magic);
+          } else {
+            await magic.oauth.loginWithRedirect({
+              provider: "discord",
+              redirectURI: `${window.location.origin}`,
+              scope: ["email"] /* optional */,
+            });
+
+            console.log(result);
+          }
+        } else if (configuration.email) {
+          this.magic = new m.Magic(apiKey, options);
+
+          await this.magic.auth.loginWithMagicLink(configuration);
+        }
         const provider = this.getProvider();
         if (provider.on) {
           provider.on("accountsChanged", this.onAccountsChanged);

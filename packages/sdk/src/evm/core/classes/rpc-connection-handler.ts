@@ -1,4 +1,4 @@
-import { getReadOnlyProvider } from "../../constants/urls";
+import { getChainProvider } from "../../constants/urls";
 import {
   SDKOptions,
   SDKOptionsOutput,
@@ -93,8 +93,9 @@ export function getSignerAndProvider(
   }
 
   if (options?.readonlySettings) {
-    provider = getReadOnlyProvider(
+    provider = getChainProvider(
       options.readonlySettings.rpcUrl,
+      options,
       options.readonlySettings.chainId,
     );
   }
@@ -103,13 +104,10 @@ export function getSignerAndProvider(
     if (providers.Provider.isProvider(network)) {
       provider = network;
     } else if (!Signer.isSigner(network)) {
-      if (typeof network === "string") {
-        provider = getReadOnlyProvider(
-          network,
-          options?.readonlySettings?.chainId,
-        );
+      if (typeof network === "string" || typeof network === "number") {
+        provider = getChainProvider(network, options);
       } else {
-        // no a signer, not a provider, not a string? try with default provider
+        // no a signer, not a provider, not a string, not a number? try with default provider
         provider = ethers.getDefaultProvider(network);
       }
     }

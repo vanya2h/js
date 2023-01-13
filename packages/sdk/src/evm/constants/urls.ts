@@ -40,7 +40,7 @@ export type ChainOrRpc =
   // ideally we could use `https://${string}` notation here, but doing that causes anything that is a generic string to throw a type error => not worth the hassle for now
   ChainNames | (string & {});
 
-export type ChainIdOrName = number | ChainNames | (string & {});
+export type ChainIdOrName = number | ChainOrRpc;
 
 export const CHAIN_NAME_TO_ID: Record<ChainNames, SUPPORTED_CHAIN_ID> = {
   "avalanche-fuji": ChainId.AvalancheFujiTestnet,
@@ -91,6 +91,7 @@ export const DEFAULT_RPC_URLS: Record<SUPPORTED_CHAIN_ID, string> =
 export function getChainProvider(
   network: ChainIdOrName,
   sdkOptions: SDKOptions,
+  knownChainId?: number,
 ): ethers.providers.Provider {
   // handle legacy input of passing a RPC url directly
   if (typeof network === "string" && network.startsWith("http")) {
@@ -99,7 +100,7 @@ export function getChainProvider(
     );
     return getReadOnlyProvider(network);
   }
-  const chainId = toChainId(network);
+  const chainId = knownChainId || toChainId(network);
   const options = SDKOptionsSchema.parse(sdkOptions);
   const rpcMap: Record<number, ChainInfo> = {
     ...buildDefaultMap(options),

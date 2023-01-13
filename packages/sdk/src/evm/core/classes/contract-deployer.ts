@@ -5,7 +5,7 @@ import {
   fetchExtendedReleaseMetadata,
   fetchPreDeployMetadata,
 } from "../../common/index";
-import { ChainId } from "../../constants";
+import { ChainId, ChainIdOrName } from "../../constants";
 import { getContractAddressByChainId } from "../../constants/addresses";
 import {
   EditionDropInitializer,
@@ -38,11 +38,15 @@ import {
   DeploySchemaForPrebuiltContractType,
   NetworkOrSignerOrProvider,
   PrebuiltContractType,
+  SignerOrProvider,
 } from "../types";
 import { ContractFactory } from "./factory";
 import { FactoryEvents } from "./factory-events";
 import { ContractRegistry } from "./registry";
-import { RPCConnectionHandler } from "./rpc-connection-handler";
+import {
+  getSignerAndProvider,
+  RPCConnectionHandler,
+} from "./rpc-connection-handler";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import {
   BigNumber,
@@ -563,32 +567,34 @@ export class ContractDeployer extends RPCConnectionHandler {
   /**
    * @internal
    */
-  public async getRegistry(): Promise<ContractRegistry | undefined> {
+  public async getRegistry(
+    network?: ChainIdOrName | SignerOrProvider,
+  ): Promise<ContractRegistry | undefined> {
     // if we already have a registry just return it back
-    if (this._registry) {
-      return this._registry;
-    }
+
+    // TODO (anyEVM) - get the registry address dynamically at call time
+    const [signer, provider] = network
+      ? getSignerAndProvider(network, this.options)
+      : [this.getSigner(), this.getProvider()];
 
     // otherwise get the registry address for the active chain and get a new one
 
     // have to do it like this otherwise we run it over and over and over
     // "this._registry" has to be assigned to the promise upfront.
-    return (this._registry = this.getProvider()
-      .getNetwork()
-      .then(async ({ chainId }) => {
-        const registryAddress = getContractAddressByChainId(
-          chainId,
-          "twRegistry",
-        );
-        if (!registryAddress) {
-          return undefined;
-        }
-        return new ContractRegistry(
-          registryAddress,
-          this.getSignerOrProvider(),
-          this.options,
-        );
-      }));
+    return (this._registry = provider.getNetwork().then(async ({ chainId }) => {
+      const registryAddress = getContractAddressByChainId(
+        chainId,
+        "twRegistry",
+      );
+      if (!registryAddress) {
+        return undefined;
+      }
+      return new ContractRegistry(
+        registryAddress,
+        signer || provider,
+        this.options,
+      );
+    }));
   }
 
   private async getFactory(): Promise<ContractFactory | undefined> {
@@ -596,6 +602,8 @@ export class ContractDeployer extends RPCConnectionHandler {
     if (this._factory) {
       return this._factory;
     }
+
+    // TODO (anyEVM) - pass network to deploy on any chain
 
     // otherwise get the factory address for the active chain and get a new one
 

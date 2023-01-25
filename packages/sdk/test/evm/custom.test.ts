@@ -12,8 +12,9 @@ import {
   VoteERC20__factory,
 } from "@thirdweb-dev/contracts-js";
 import { assert, expect } from "chai";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import invariant from "tiny-invariant";
+import { bigint } from "zod";
 
 global.fetch = require("cross-fetch");
 
@@ -233,7 +234,7 @@ describe("Custom Contracts", async () => {
   });
 
   it("should not detect feature if missing from ABI", async () => {
-    const c = await sdk.getContractFromAbi("", VoteERC20__factory.abi);
+    const c = await sdk.getContract("", VoteERC20__factory.abi);
     invariant(c, "Contract undefined");
     invariant(c.metadata, "Metadata undefined");
     try {
@@ -462,10 +463,13 @@ describe("Custom Contracts", async () => {
   });
 
   it("should detect feature: erc721 signature mintable", async () => {
-    const c = await sdk.getContractFromAbi(
+    const c = await sdk.getContract(
       nftContractAddress,
-      TokenERC721__factory.abi,
+      TWRegistry_ABI,
     );
+
+    c.call("getRoleMember", [nftContractAddress, 0n])
+
 
     const payload = {
       metadata: {
@@ -488,4 +492,429 @@ describe("Custom Contracts", async () => {
     // Better way to do this?
     expect(tx.id.toNumber()).to.eq(0);
   });
+
+  const TWRegistry_ABI = <const>[
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "_trustedForwarder",
+          type: "address",
+        },
+      ],
+      stateMutability: "nonpayable",
+      type: "constructor",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "deployer",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "deployment",
+          type: "address",
+        },
+      ],
+      name: "Added",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "deployer",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "deployment",
+          type: "address",
+        },
+      ],
+      name: "Deleted",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+        {
+          indexed: true,
+          internalType: "bytes32",
+          name: "previousAdminRole",
+          type: "bytes32",
+        },
+        {
+          indexed: true,
+          internalType: "bytes32",
+          name: "newAdminRole",
+          type: "bytes32",
+        },
+      ],
+      name: "RoleAdminChanged",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "sender",
+          type: "address",
+        },
+      ],
+      name: "RoleGranted",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "sender",
+          type: "address",
+        },
+      ],
+      name: "RoleRevoked",
+      type: "event",
+    },
+    {
+      inputs: [],
+      name: "DEFAULT_ADMIN_ROLE",
+      outputs: [
+        {
+          internalType: "bytes32",
+          name: "",
+          type: "bytes32",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "OPERATOR_ROLE",
+      outputs: [
+        {
+          internalType: "bytes32",
+          name: "",
+          type: "bytes32",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "_deployer",
+          type: "address",
+        },
+        {
+          internalType: "address",
+          name: "_deployment",
+          type: "address",
+        },
+      ],
+      name: "add",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "_deployer",
+          type: "address",
+        },
+      ],
+      name: "count",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "_deployer",
+          type: "address",
+        },
+      ],
+      name: "getAll",
+      outputs: [
+        {
+          internalType: "address[]",
+          name: "",
+          type: "address[]",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+      ],
+      name: "getRoleAdmin",
+      outputs: [
+        {
+          internalType: "bytes32",
+          name: "",
+          type: "bytes32",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+        {
+          internalType: "uint256",
+          name: "index",
+          type: "uint256",
+        },
+      ],
+      name: "getRoleMember",
+      outputs: [
+        {
+          internalType: "address",
+          name: "",
+          type: "address",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+      ],
+      name: "getRoleMemberCount",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+        {
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+      ],
+      name: "grantRole",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+        {
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+      ],
+      name: "hasRole",
+      outputs: [
+        {
+          internalType: "bool",
+          name: "",
+          type: "bool",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "forwarder",
+          type: "address",
+        },
+      ],
+      name: "isTrustedForwarder",
+      outputs: [
+        {
+          internalType: "bool",
+          name: "",
+          type: "bool",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes[]",
+          name: "data",
+          type: "bytes[]",
+        },
+      ],
+      name: "multicall",
+      outputs: [
+        {
+          internalType: "bytes[]",
+          name: "results",
+          type: "bytes[]",
+        },
+      ],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "_deployer",
+          type: "address",
+        },
+        {
+          internalType: "address",
+          name: "_deployment",
+          type: "address",
+        },
+      ],
+      name: "remove",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+        {
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+      ],
+      name: "renounceRole",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes32",
+          name: "role",
+          type: "bytes32",
+        },
+        {
+          internalType: "address",
+          name: "account",
+          type: "address",
+        },
+      ],
+      name: "revokeRole",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes4",
+          name: "interfaceId",
+          type: "bytes4",
+        },
+      ],
+      name: "supportsInterface",
+      outputs: [
+        {
+          internalType: "bool",
+          name: "",
+          type: "bool",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+  ];
+  
 });

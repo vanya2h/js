@@ -15,6 +15,7 @@ import {
   CommonTrustedForwarderSchema,
   MerkleSchema,
 } from "./common";
+import { Abi, AbiFunction as AbiTypeFunction } from "abitype/zod";
 import { BigNumberish } from "ethers";
 import { z } from "zod";
 
@@ -95,8 +96,8 @@ export const AbiObjectSchema = z
 /**
  * @internal
  */
-export const AbiSchema = z.array(AbiObjectSchema);
-export type Abi = z.input<typeof AbiSchema>;
+export const AbiSchema = Abi; // z.array(AbiObjectSchema);
+export type Abi = z.infer<typeof AbiSchema>;
 
 /**
  * @internal
@@ -281,14 +282,15 @@ export type PublishedContractFetched = {
   publishedTimestamp: BigNumberish;
   publishedMetadata: FullPublishMetadata;
 };
-export type AbiFunction = {
-  name: string;
-  inputs: z.infer<typeof AbiTypeSchema>[];
-  outputs: z.infer<typeof AbiTypeSchema>[];
-  signature: string;
-  stateMutability: string;
-  comment: string;
-};
+// export type AbiFunction = z.infer<typeof AbiTypeFunction>;
+// {
+//   name: string;
+//   inputs: z.infer<typeof AbiTypeSchema>[];
+//   outputs: z.infer<typeof AbiTypeSchema>[];
+//   signature: string;
+//   stateMutability: string;
+//   comment: string;
+// };
 export type AbiEvent = {
   name: string;
   inputs: z.infer<typeof AbiTypeSchema>[];

@@ -78,11 +78,22 @@ export function joinABIs(abis: Abi[]): Abi {
   const parsedABIs = abis.map((abi) => AbiSchema.parse(abi)).flat();
 
   const filteredABIs = unique(parsedABIs, (a, b): boolean => {
-    return (
-      a.name === b.name &&
-      a.type === b.type &&
-      a.inputs.length === b.inputs.length
-    );
+    switch (a.type) {
+      case "event":
+        return (
+          b.type === "event" &&
+          a.name === b.name &&
+          a.inputs.length === b.inputs.length
+        );
+      case "function":
+        return (
+          b.type === "function" &&
+          a.name === b.name &&
+          a.inputs.length === b.inputs.length
+        );
+      default:
+        return false;
+    }
   });
 
   return AbiSchema.parse(filteredABIs);

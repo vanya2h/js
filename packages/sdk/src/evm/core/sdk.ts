@@ -35,7 +35,14 @@ import type {
 import { UserWallet } from "./wallet/UserWallet";
 import IThirdwebContractABI from "@thirdweb-dev/contracts-js/dist/abis/IThirdwebContract.json";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
-import { Contract, ContractInterface, ethers, Signer } from "ethers";
+import { Abi } from "abitype";
+import {
+  BaseContract,
+  Contract,
+  ContractInterface,
+  ethers,
+  Signer,
+} from "ethers";
 import invariant from "tiny-invariant";
 
 /**
@@ -384,7 +391,9 @@ export class ThirdwebSDK extends RPCConnectionHandler {
    * const contract = await sdk.getContract("{{contract_address}}");
    * ```
    */
-  public async getContract(address: string): Promise<SmartContract>;
+  public async getContract<TAbi extends Abi>(
+    address: string,
+  ): Promise<SmartContract<BaseContract, TAbi>>;
   /**
    * Get an instance of a Custom ThirdwebContract
    * @param address - the address of the deployed contract
@@ -415,10 +424,11 @@ export class ThirdwebSDK extends RPCConnectionHandler {
    * const contract = await sdk.getContract("{{contract_address}}", ABI);
    * ```
    */
-  public async getContract(
+  public async getContract<TAbi extends Abi>(
     address: string,
-    abi: ContractInterface,
-  ): Promise<SmartContract>;
+    abi: TAbi,
+  ): Promise<SmartContract<BaseContract, TAbi>>;
+
   public async getContract(
     address: string,
     contractTypeOrABI?: PrebuiltContractType | ContractInterface,
@@ -443,7 +453,10 @@ export class ThirdwebSDK extends RPCConnectionHandler {
           const metadata = await publisher.fetchCompilerMetadataFromAddress(
             address,
           );
-          newContract = await this.getContractFromAbi(address, metadata.abi);
+          newContract = await this.getContractFromAbi(
+            address,
+            AbiSchema.parse(metadata.abi),
+          );
         } catch (e) {
           throw new Error(`Error fetching ABI for this contract\n\n${e}`);
         }
@@ -452,7 +465,10 @@ export class ThirdwebSDK extends RPCConnectionHandler {
         const contractAbi = await PREBUILT_CONTRACTS_MAP[
           resolvedContractType
         ].getAbi(address, this.getProvider(), this.storage);
-        newContract = await this.getContractFromAbi(address, contractAbi);
+        newContract = await this.getContractFromAbi(
+          address,
+          AbiSchema.parse(contractAbi),
+        );
       }
     }
     // if it's a builtin contract type we can just use the contract type to initialize the contract instance
@@ -471,7 +487,10 @@ export class ThirdwebSDK extends RPCConnectionHandler {
     }
     // otherwise it has to be an ABI
     else {
-      newContract = await this.getContractFromAbi(address, contractTypeOrABI);
+      newContract = await this.getContractFromAbi(
+        address,
+        AbiSchema.parse(contractTypeOrABI),
+      );
     }
 
     // set whatever we have on the cache
@@ -611,7 +630,10 @@ export class ThirdwebSDK extends RPCConnectionHandler {
    * );
    * ```
    */
-  public async getContractFromAbi(address: string, abi: ContractInterface) {
+  public async getContractFromAbi<TAbi extends Abi>(
+    address: string,
+    abi: TAbi,
+  ) {
     if (this.contractCache.has(address)) {
       return this.contractCache.get(address) as SmartContract;
     }
@@ -625,12 +647,14 @@ export class ThirdwebSDK extends RPCConnectionHandler {
     const contract = new SmartContract(
       this.getSignerOrProvider(),
       address,
-      await getCompositePluginABI(
-        address,
-        AbiSchema.parse(parsedABI),
-        provider,
-        this.options,
-        this.storage,
+      AbiSchema.parse(
+        await getCompositePluginABI(
+          address,
+          AbiSchema.parse(parsedABI),
+          provider,
+          this.options,
+          this.storage,
+        ),
       ),
       this.storageHandler,
       this.options,

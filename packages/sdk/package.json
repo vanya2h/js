@@ -124,6 +124,7 @@
     "@solana/web3.js": "^1.62.0",
     "@thirdweb-dev/contracts-js": "*",
     "@thirdweb-dev/storage": "*",
+    "abitype": "^0.3.0",
     "bn.js": "^5.2.1",
     "bs58": "^5.0.0",
     "cross-fetch": "^3.1.5",

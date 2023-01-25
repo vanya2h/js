@@ -29,7 +29,7 @@ import { Erc721 } from "../core/classes/erc-721";
 import { Erc1155 } from "../core/classes/erc-1155";
 import { GasCostEstimator } from "../core/classes/gas-cost-estimator";
 import { UpdateableNetwork } from "../core/interfaces/contract";
-import { CustomContractSchema } from "../schema/contracts/custom";
+import { Abi, CustomContractSchema } from "../schema/contracts/custom";
 import { SDKOptions } from "../schema/sdk-options";
 import { BaseERC1155, BaseERC20, BaseERC721 } from "../types/eips";
 import type {
@@ -40,6 +40,12 @@ import type {
   Ownable,
 } from "@thirdweb-dev/contracts-js";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import {
+  Abi as AbiType,
+  AbiParametersToPrimitiveTypes,
+  ExtractAbiFunction,
+  ExtractAbiFunctionNames,
+} from "abitype";
 import { BaseContract, CallOverrides, ContractInterface } from "ethers";
 
 /**
@@ -68,8 +74,10 @@ import { BaseContract, CallOverrides, ContractInterface } from "ethers";
  *
  * @beta
  */
-export class SmartContract<TContract extends BaseContract = BaseContract>
-  implements UpdateableNetwork
+export class SmartContract<
+  TContract extends BaseContract = BaseContract,
+  TAbi extends AbiType = any,
+> implements UpdateableNetwork
 {
   private contractWrapper;
   private storage;
@@ -211,9 +219,15 @@ export class SmartContract<TContract extends BaseContract = BaseContract>
    * @param functionName - the name of the function to call
    * @param args - the arguments of the function
    */
-  public async call(
-    functionName: string,
-    ...args: unknown[] | [...unknown[], CallOverrides]
+  public async call<
+    TName extends ExtractAbiFunctionNames<TAbi>,
+    TParams extends AbiParametersToPrimitiveTypes<
+      ExtractAbiFunction<TAbi, TName>["inputs"]
+    >,
+  >(
+    functionName: TName,
+    args: TParams,
+    // TODO re-add as sep param | callOverrides?: CallOverrides,
   ): Promise<any> {
     return this.contractWrapper.call(functionName, ...args);
   }

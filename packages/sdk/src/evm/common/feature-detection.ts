@@ -9,10 +9,7 @@ import { DetectableFeature } from "../core/interfaces/DetectableFeature";
 import { decode } from "../lib/cbor-decode.js";
 import {
   Abi,
-  AbiEvent,
-  AbiFunction,
   AbiSchema,
-  AbiTypeSchema,
   FullPublishMetadata,
   FullPublishMetadataSchemaOutput,
   PreDeployMetadata,
@@ -22,8 +19,10 @@ import {
 import { ExtensionNotImplementedError } from "./error";
 import { fetchContractMetadata } from "./metadata-resolver";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import { AbiParameter, AbiFunction, AbiEvent, SolidityTuple } from "abitype";
 import bs58 from "bs58";
 import { BaseContract, BigNumber, ethers } from "ethers";
+import invariant from "tiny-invariant";
 import { z } from "zod";
 
 /**
@@ -33,7 +32,8 @@ import { z } from "zod";
  */
 function matchesAbiInterface(abi: Abi, feature: Feature): boolean {
   // returns true if all the functions in `interfaceToMatch` are found in `contract` (removing any duplicates)
-  return hasMatchingAbi(abi, feature.abis);
+  const parsedAbis = feature.abis.map((a) => AbiSchema.parse(a));
+  return hasMatchingAbi(abi, parsedAbis);
 }
 
 /**
@@ -139,9 +139,7 @@ function extractCommentFromMetadata(
  * @returns
  * @internal
  */
-export function extractConstructorParamsFromAbi(
-  abi: z.input<typeof AbiSchema>,
-) {
+export function extractConstructorParamsFromAbi(abi: Abi) {
   for (const input of abi) {
     if (input.type === "constructor") {
       return input.inputs || [];
@@ -157,10 +155,7 @@ export function extractConstructorParamsFromAbi(
  * @returns
  * @internal
  */
-export function extractFunctionParamsFromAbi(
-  abi: z.input<typeof AbiSchema>,
-  functionName: string,
-) {
+export function extractFunctionParamsFromAbi(abi: Abi, functionName: string) {
   for (const input of abi) {
     if (input.type === "function" && input.name === functionName) {
       return input.inputs || [];
@@ -182,6 +177,7 @@ export function extractFunctionsFromAbi(
 
   const parsed: AbiFunction[] = [];
   for (const f of functions) {
+    invariant(f.type === "function", "Expected function type");
     const doc = extractCommentFromMetadata(f.name, metadata, "methods");
     const args =
       f.inputs?.map((i) => `${i.name || "key"}: ${toJSType(i)}`)?.join(", ") ||
@@ -214,10 +210,10 @@ export function extractEventsFromAbi(
   const events = (abi || []).filter((el) => el.type === "event");
   const parsed: AbiEvent[] = [];
   for (const e of events) {
+    invariant(e.type === "event", "Expected event type");
     const doc = extractCommentFromMetadata(e.name, metadata, "events");
     parsed.push({
       inputs: e.inputs || [],
-      outputs: e.outputs || [],
       name: e.name || "unknown",
       comment: doc,
     });
@@ -226,7 +222,7 @@ export function extractEventsFromAbi(
 }
 
 function toJSType(
-  contractType: z.input<typeof AbiTypeSchema>,
+  contractType: AbiParameter,
   isReturnType = false,
   withName = false,
 ): string {
@@ -249,7 +245,7 @@ function toJSType(
     jsType = "string";
   }
   if (jsType === "tuple") {
-    if (contractType.components) {
+    if ("components" in contractType) {
       jsType = `{ ${contractType.components
         .map((a) => toJSType(a, false, true))
         .join(", ")} }`;

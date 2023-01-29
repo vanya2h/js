@@ -5,6 +5,7 @@ import {
   fetchContractMetadataFromAddress,
 } from "../../common";
 import { FEATURE_METADATA } from "../../constants/thirdweb-features";
+import { Abi } from "../../schema";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResult } from "../types";
 import { ContractWrapper } from "./contract-wrapper";
@@ -42,6 +43,7 @@ export interface IGenericSchemaType {
 export class ContractMetadata<
   TContract extends BaseContract,
   TSchema extends IGenericSchemaType,
+  TAbi extends Abi | readonly unknown[] = Abi,
 > implements DetectableFeature
 {
   featureName = FEATURE_METADATA.name;

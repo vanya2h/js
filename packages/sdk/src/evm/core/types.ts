@@ -1,15 +1,25 @@
 import type { CONTRACTS_MAP, PREBUILT_CONTRACTS_MAP } from "../contracts";
 import type { SmartContract } from "../contracts/smart-contract";
-import { BigNumber, BytesLike, CallOverrides, Signer, providers } from "ethers";
+import { Abi } from "../schema";
+import {
+  BigNumber,
+  BytesLike,
+  CallOverrides,
+  Signer,
+  providers,
+  BaseContract,
+} from "ethers";
 
 // --- utility types extracted from from ts-toolbelt --- //
 
 // if
 type TBoolean = 0 | 1;
-type If<B extends TBoolean, Then, Else = never> = B extends 1 ? Then : Else;
+export type If<B extends TBoolean, Then, Else = never> = B extends 1
+  ? Then
+  : Else;
 
 // equals
-type Equals<A1, A2> = (<A>() => A extends A2 ? 1 : 0) extends <
+export type Equals<A1, A2> = (<A>() => A extends A2 ? 1 : 0) extends <
   A,
 >() => A extends A1 ? 1 : 0
   ? 1
@@ -27,9 +37,12 @@ export type ContractsMap = typeof CONTRACTS_MAP;
 export type PrebuiltContractType = keyof PrebuiltContractsMap;
 export type ContractType = keyof ContractsMap;
 
-export type ValidContractInstance =
-  | Awaited<ReturnType<ContractsMap[keyof PrebuiltContractsMap]["initialize"]>>
-  | SmartContract;
+export type ValidContractInstance<TAbi extends Abi | readonly unknown[] = Abi> =
+
+    | Awaited<
+        ReturnType<ContractsMap[keyof PrebuiltContractsMap]["initialize"]>
+      >
+    | SmartContract<BaseContract, TAbi>;
 
 export type SchemaForPrebuiltContractType<
   TContractType extends PrebuiltContractType,

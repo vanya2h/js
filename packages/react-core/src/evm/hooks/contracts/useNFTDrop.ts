@@ -31,10 +31,10 @@ import { useContract } from "../async/contracts";
  * + const nftDrop = useContract("0x1234...", "nft-drop").contract;
  * ```
  */
-export function useNFTDrop(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useNFTDrop("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "nft-drop")`,
-  );
-  return useContract(contractAddress, "nft-drop").contract;
-}
+// export function useNFTDrop(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useNFTDrop("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "nft-drop")`,
+//   );
+//   return useContract(contractAddress, "nft-drop").contract;
+// }

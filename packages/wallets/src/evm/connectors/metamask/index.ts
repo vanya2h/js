@@ -1,6 +1,7 @@
 import { getConnectorStorage } from "../../utils/storage";
 import { InjectedConnector } from "../injected";
 import {
+  Address,
   Chain,
   ConnectorNotFoundError,
   Ethereum,
@@ -9,7 +10,6 @@ import {
   RpcError,
   UserRejectedRequestError,
 } from "@wagmi/core";
-import type { Address } from "abitype";
 import { getAddress } from "ethers/lib/utils.js";
 
 function isWindoWethereum(w: Window): w is Window & { ethereum: Ethereum } {

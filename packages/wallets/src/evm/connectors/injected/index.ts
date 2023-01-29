@@ -2,6 +2,7 @@ import { getInjectedName } from "../../utils/getInjectedName";
 import { getConnectorStorage } from "../../utils/storage";
 import {
   AddChainError,
+  Address,
   Chain,
   ChainNotConfiguredError,
   Connector,
@@ -14,7 +15,6 @@ import {
   SwitchChainError,
   UserRejectedRequestError,
 } from "@wagmi/core";
-import type { Address } from "abitype";
 import { providers } from "ethers";
 import { getAddress, hexValue } from "ethers/lib/utils.js";
 

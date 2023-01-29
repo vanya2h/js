@@ -32,10 +32,10 @@ import { useContract } from "../async/contracts";
  * + const token = useContract("0x1234...", "token-drop").contract;
  * ```
  */
-export function useTokenDrop(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useTokenDrop("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "token-drop")`,
-  );
-  return useContract(contractAddress, "token-drop").contract;
-}
+// export function useTokenDrop(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useTokenDrop("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "token-drop")`,
+//   );
+//   return useContract(contractAddress, "token-drop").contract;
+// }

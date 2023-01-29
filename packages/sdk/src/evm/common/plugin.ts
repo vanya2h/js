@@ -11,13 +11,13 @@ import { ethers } from "ethers";
 /**
  * @internal
  */
-export async function getCompositePluginABI(
+export async function getCompositePluginABI<TAbi extends Abi = Abi>(
   address: string,
-  abi: Abi,
+  abi: TAbi,
   provider: ethers.providers.Provider,
   options: SDKOptions,
   storage: ThirdwebStorage,
-): Promise<Abi> {
+): Promise<TAbi | Abi> {
   let pluginABIs: Abi[] = [];
 
   try {
@@ -31,7 +31,7 @@ export async function getCompositePluginABI(
       const contract = new ContractWrapper<IRouter>(
         provider,
         address,
-        RouterABI,
+        AbiSchema.parse(RouterABI),
         options,
       );
 

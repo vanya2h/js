@@ -35,6 +35,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "preconstruct build",
+    "push": "yalc push",
     "format": "prettier --write 'src/**/*'",
     "lint": "eslint src/",
     "fix": "eslint src/ --fix",

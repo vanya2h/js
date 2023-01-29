@@ -15,7 +15,19 @@ import {
   CommonTrustedForwarderSchema,
   MerkleSchema,
 } from "./common";
-import { Abi, AbiFunction as AbiTypeFunction } from "abitype/zod";
+import {
+  AbiParametersToPrimitiveTypes,
+  AbiStateMutability,
+  ExtractAbiFunction,
+} from "abitype";
+import {
+  ExtractAbiFunctionNames,
+  AbiFunction as AbiTypeFunction,
+  AbiParameter as AbiTypeParameter,
+  Abi as AbiType,
+  AbiEvent as AbiTypeEvent,
+} from "abitype";
+import { Abi } from "abitype/zod";
 import { BigNumberish } from "ethers";
 import { z } from "zod";
 
@@ -96,8 +108,42 @@ export const AbiObjectSchema = z
 /**
  * @internal
  */
-export const AbiSchema = Abi; // z.array(AbiObjectSchema);
-export type Abi = z.infer<typeof AbiSchema>;
+export const AbiSchema = Abi; // TODO (abi) - this might be too restrictive for inputs
+export type Abi = AbiType; // z.infer<typeof AbiSchema>;
+
+export type GetFunctionName<
+  TAbi extends Abi | readonly unknown[] = Abi,
+  TFunctionName extends string = string,
+  TAbiStateMutability extends AbiStateMutability = AbiStateMutability,
+> = TAbi extends Abi
+  ? ExtractAbiFunctionNames<
+      TAbi,
+      TAbiStateMutability
+    > extends infer AbiFunctionNames
+    ?
+        | AbiFunctionNames
+        | (TFunctionName extends AbiFunctionNames ? TFunctionName : never)
+        | (Abi extends TAbi ? string : never)
+    : never
+  : TFunctionName;
+
+export type GetArgs<
+  TAbi extends AbiType | readonly unknown[],
+  TFunctionName extends string,
+  TAbiFunction extends AbiTypeFunction & {
+    type: "function";
+  } = TAbi extends AbiType
+    ? ExtractAbiFunction<TAbi, TFunctionName>
+    : AbiTypeFunction & { type: "function" },
+  TArgs = AbiParametersToPrimitiveTypes<TAbiFunction["inputs"]>,
+  FailedToParseArgs =
+    | ([TArgs] extends [never] ? true : false)
+    | (readonly unknown[] extends TArgs ? true : false),
+> = true extends FailedToParseArgs
+  ? readonly unknown[]
+  : TArgs extends readonly []
+  ? never
+  : TArgs;
 
 /**
  * @internal
@@ -275,28 +321,20 @@ export type PreDeployMetadataFetched = z.infer<
   typeof PreDeployMetadataFetchedSchema
 >;
 
-export type ContractParam = z.infer<typeof AbiTypeSchema>;
 export type PublishedContract = z.infer<typeof PublishedContractSchema>;
 export type PublishedContractFetched = {
   name: string;
   publishedTimestamp: BigNumberish;
   publishedMetadata: FullPublishMetadata;
 };
-// export type AbiFunction = z.infer<typeof AbiTypeFunction>;
-// {
-//   name: string;
-//   inputs: z.infer<typeof AbiTypeSchema>[];
-//   outputs: z.infer<typeof AbiTypeSchema>[];
-//   signature: string;
-//   stateMutability: string;
-//   comment: string;
-// };
-export type AbiEvent = {
-  name: string;
-  inputs: z.infer<typeof AbiTypeSchema>[];
-  outputs: z.infer<typeof AbiTypeSchema>[];
+export type AbiFunction = AbiTypeFunction & {
+  comment: string;
+  signature: string;
+};
+export type AbiEvent = AbiTypeEvent & {
   comment: string;
 };
+export type AbiParameter = AbiTypeParameter;
 export type ContractSource = {
   filename: string;
   source: string;

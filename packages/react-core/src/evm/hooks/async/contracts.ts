@@ -14,23 +14,33 @@ import { useQueryWithNetwork } from "../query-utils/useQueryWithNetwork";
 import { useAddress, useChainId } from "../wallet";
 import {
   useMutation,
+  UseMutationResult,
   useQuery,
   useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
 import {
+  Abi,
   CommonContractSchemaInput,
   ContractEvent,
-  ContractForPrebuiltContractType,
   ContractType,
   EventQueryOptions,
-  PrebuiltContractType,
+  GetArgs,
+  GetFunctionName,
+  PublishedMetadata,
+  SmartContract,
   SUPPORTED_CHAIN_ID,
   ThirdwebSDK,
   ValidContractInstance,
 } from "@thirdweb-dev/sdk";
-import type { SmartContract } from "@thirdweb-dev/sdk/dist/declarations/src/evm/contracts/smart-contract";
-import { CallOverrides, ContractInterface } from "ethers";
+import { Narrow } from "abitype";
+import {
+  BaseContract,
+  BigNumberish,
+  BytesLike,
+  CallOverrides,
+  ContractInterface,
+} from "ethers";
 import { useEffect, useMemo } from "react";
 import invariant from "tiny-invariant";
 
@@ -89,7 +99,7 @@ export const contractType = {
 function fetchCompilerMetadata(
   contractAddress: RequiredParam<ContractAddress>,
   sdk: RequiredParam<ThirdwebSDK>,
-) {
+): Promise<PublishedMetadata> | null {
   if (!contractAddress || !sdk) {
     return null;
   }
@@ -103,7 +113,7 @@ function fetchCompilerMetadata(
 
 export function useCompilerMetadata(
   contractAddress: RequiredParam<ContractAddress>,
-) {
+): UseQueryResult<PublishedMetadata | null> {
   const sdk = useSDK();
 
   return useQueryWithNetwork(
@@ -136,7 +146,11 @@ export const compilerMetadata = {
 // useContract
 
 export type UseContractResult<
-  TContract extends ValidContractInstance = SmartContract,
+  TAbi extends Abi = Abi,
+  TContract extends ValidContractInstance<TAbi> = SmartContract<
+    BaseContract,
+    TAbi
+  >,
 > = UseQueryResult<TContract | undefined> & {
   contract: TContract | undefined;
 };
@@ -155,7 +169,7 @@ export type UseContractResult<
  */
 export function useContract(
   contractAddress: RequiredParam<ContractAddress>,
-): UseContractResult<SmartContract>;
+): UseContractResult<Abi>;
 
 /**
  * Use this resolve a contract address to a smart contract instance.
@@ -173,11 +187,7 @@ export function useContract(
 export function useContract<TContractType extends ContractType>(
   contractAddress: RequiredParam<ContractAddress>,
   _contractType: TContractType,
-): UseContractResult<
-  TContractType extends PrebuiltContractType
-    ? ContractForPrebuiltContractType<TContractType>
-    : SmartContract
->;
+): UseContractResult<Abi, ValidContractInstance<Abi>>;
 
 /**
  * Use this resolve a contract address to a smart contract instance.
@@ -193,10 +203,10 @@ export function useContract<TContractType extends ContractType>(
  * @public
  */
 
-export function useContract(
+export function useContract<TAbi extends Abi = Abi>(
   contractAddress: RequiredParam<ContractAddress>,
-  _abi: ContractInterface,
-): UseContractResult<SmartContract>;
+  _abi: Narrow<TAbi> | ContractInterface,
+): UseContractResult<TAbi>;
 
 export function useContract(
   contractAddress: RequiredParam<ContractAddress>,
@@ -232,7 +242,7 @@ export function useContract(
           () => contractType.fetchQuery(contractAddress, sdk),
           { cacheTime: Infinity, staleTime: Infinity },
         );
-        let abi: ContractInterface | undefined;
+        let abi: Abi | ContractInterface | undefined;
         if (resolvedContractType === "custom") {
           abi = (
             await queryClient.fetchQuery(
@@ -269,7 +279,7 @@ export function useContract(
     ...contractQuery,
     data: contractQuery.data,
     contract: contractQuery.data,
-  } as UseContractResult<ValidContractInstance>;
+  } as UseContractResult<Abi, ValidContractInstance<Abi>>;
 }
 
 /**
@@ -443,18 +453,22 @@ export function useContractEvents(
  *
  * @beta
  */
-export function useContractRead(
-  contract: RequiredParam<ValidContractInstance>,
-  functionName: RequiredParam<string>,
-  ...args: unknown[] | [...unknown[], CallOverrides]
+export function useContractRead<
+  TAbi extends Abi,
+  TFunctionName extends string = string,
+>(
+  contract: RequiredParam<SmartContract<BaseContract, TAbi>>, // TODO (abi) ValidContractInstance
+  functionName: GetFunctionName<TAbi, TFunctionName, "pure" | "view">,
+  args?: GetArgs<TAbi, TFunctionName>,
+  txOverrides?: CallOverrides,
 ) {
   const contractAddress = contract?.getAddress();
   return useQueryWithNetwork(
-    cacheKeys.contract.call(contractAddress, functionName, args),
+    cacheKeys.contract.call(contractAddress, functionName, args as unknown[]),
     () => {
       requiredParamInvariant(contract, "contract must be defined");
       requiredParamInvariant(functionName, "function name must be provided");
-      return contract.call(functionName, ...args);
+      return contract.call(functionName, args, txOverrides);
     },
     {
       enabled: !!contract && !!functionName,
@@ -480,22 +494,33 @@ export function useContractRead(
  *
  * @beta
  */
-export function useContractWrite(
-  contract: RequiredParam<ValidContractInstance>,
-  functionName: RequiredParam<string>,
-) {
+export function useContractWrite<
+  TAbi extends Abi,
+  TFunctionName extends string = string,
+>(
+  contract: RequiredParam<SmartContract<BaseContract, TAbi>>,
+  functionName: GetFunctionName<TAbi, TFunctionName, "nonpayable" | "payable">,
+): UseMutationResult<
+  any,
+  unknown,
+  { args?: GetArgs<TAbi, TFunctionName>; txOptions?: CallOverrides } | undefined
+> {
   const activeChainId = useSDKChainId();
   const contractAddress = contract?.getAddress();
   const queryClient = useQueryClient();
 
   return useMutation(
-    async (callParams?: unknown[] | [...unknown[], CallOverrides]) => {
+    async (callParams?: {
+      args?: GetArgs<TAbi, TFunctionName>;
+      txOptions?: CallOverrides;
+    }) => {
       requiredParamInvariant(contract, "contract must be defined");
       requiredParamInvariant(functionName, "function name must be provided");
-      if (!callParams?.length) {
-        return contract.call(functionName);
-      }
-      return contract.call(functionName, ...callParams);
+      return contract.call(
+        functionName,
+        callParams?.args,
+        callParams?.txOptions,
+      );
     },
     {
       onSettled: () =>
@@ -507,4 +532,13 @@ export function useContractWrite(
         ),
     },
   );
+}
+
+// have to do this here to "ship" my config
+declare module "abitype" {
+  export interface Config {
+    BigIntType: BigNumberish;
+    AddressType: string;
+    BytesType: BytesLike;
+  }
 }

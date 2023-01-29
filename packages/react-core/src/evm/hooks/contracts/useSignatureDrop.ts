@@ -31,10 +31,10 @@ import { useContract } from "../async/contracts";
  * + const signatureDrop = useContract("0x1234...", "signature-drop").contract;
  * ```
  */
-export function useSignatureDrop(contractAddress?: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useSignatureDrop("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "signature-drop")`,
-  );
-  return useContract(contractAddress, "signature-drop").contract;
-}
+// export function useSignatureDrop(contractAddress?: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useSignatureDrop("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "signature-drop")`,
+//   );
+//   return useContract(contractAddress, "signature-drop").contract;
+// }

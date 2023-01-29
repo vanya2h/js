@@ -1,3 +1,4 @@
+import { Abi } from "../../schema";
 import { ContractWrapper } from "./contract-wrapper";
 import { BaseContract, CallOverrides } from "ethers";
 
@@ -5,7 +6,10 @@ import { BaseContract, CallOverrides } from "ethers";
  * Allows overriding transaction behavior for this contract
  * @public
  */
-export class ContractInterceptor<TContract extends BaseContract> {
+export class ContractInterceptor<
+  TContract extends BaseContract,
+  TAbi extends Abi | readonly unknown[] = Abi,
+> {
   private contractWrapper;
 
   constructor(contractWrapper: ContractWrapper<TContract>) {

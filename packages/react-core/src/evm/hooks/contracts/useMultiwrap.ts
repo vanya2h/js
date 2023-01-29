@@ -31,10 +31,10 @@ import { useContract } from "../async/contracts";
  * + const multiwrap = useContract("0x1234...", "multiwrap").contract;
  * ```
  */
-export function useMultiwrap(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useMultiwrap("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "multiwrap")`,
-  );
-  return useContract(contractAddress, "multiwrap").contract;
-}
+// export function useMultiwrap(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useMultiwrap("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "multiwrap")`,
+//   );
+//   return useContract(contractAddress, "multiwrap").contract;
+// }

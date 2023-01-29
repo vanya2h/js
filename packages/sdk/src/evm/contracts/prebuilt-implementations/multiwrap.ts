@@ -394,8 +394,9 @@ export class Multiwrap extends StandardErc721<MultiwrapContract> {
    */
   public async call(
     functionName: string,
-    ...args: unknown[] | [...unknown[], CallOverrides]
+    args?: unknown[],
+    txOverrides?: CallOverrides,
   ): Promise<any> {
-    return this.contractWrapper.call(functionName, ...args);
+    return this.contractWrapper.call(functionName, args || [], txOverrides);
   }
 }

@@ -5,7 +5,7 @@ import {
 } from "../../common/currency";
 import { EIP712Domain, signTypedDataInternal } from "../../common/sign";
 import { NATIVE_TOKEN_ADDRESS } from "../../constants";
-import { SDKOptions } from "../../schema";
+import { AbiSchema, SDKOptions } from "../../schema";
 import { Amount, CurrencyValue } from "../../types";
 import { ContractWrapper } from "../classes/contract-wrapper";
 import { RPCConnectionHandler } from "../classes/rpc-connection-handler";
@@ -272,7 +272,7 @@ export class UserWallet {
     return new ContractWrapper<IERC20>(
       this.connection.getSignerOrProvider(),
       currencyAddress,
-      ERC20Abi,
+      AbiSchema.parse(ERC20Abi),
       this.options,
     );
   }

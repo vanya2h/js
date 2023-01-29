@@ -29,7 +29,12 @@ import { Erc721 } from "../core/classes/erc-721";
 import { Erc1155 } from "../core/classes/erc-1155";
 import { GasCostEstimator } from "../core/classes/gas-cost-estimator";
 import { UpdateableNetwork } from "../core/interfaces/contract";
-import { Abi, CustomContractSchema } from "../schema/contracts/custom";
+import {
+  Abi,
+  CustomContractSchema,
+  GetArgs,
+  GetFunctionName,
+} from "../schema/contracts/custom";
 import { SDKOptions } from "../schema/sdk-options";
 import { BaseERC1155, BaseERC20, BaseERC721 } from "../types/eips";
 import type {
@@ -40,13 +45,7 @@ import type {
   Ownable,
 } from "@thirdweb-dev/contracts-js";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
-import {
-  Abi as AbiType,
-  AbiParametersToPrimitiveTypes,
-  ExtractAbiFunction,
-  ExtractAbiFunctionNames,
-} from "abitype";
-import { BaseContract, CallOverrides, ContractInterface } from "ethers";
+import { BaseContract, CallOverrides } from "ethers";
 
 /**
  * Custom contract dynamic class with feature detection
@@ -76,21 +75,21 @@ import { BaseContract, CallOverrides, ContractInterface } from "ethers";
  */
 export class SmartContract<
   TContract extends BaseContract = BaseContract,
-  TAbi extends AbiType = any,
+  TAbi extends Abi | readonly unknown[] = Abi,
 > implements UpdateableNetwork
 {
   private contractWrapper;
   private storage;
 
   // utilities
-  public events: ContractEvents<TContract>;
-  public interceptor: ContractInterceptor<TContract>;
-  public encoder: ContractEncoder<TContract>;
-  public estimator: GasCostEstimator<TContract>;
-  public publishedMetadata: ContractPublishedMetadata<TContract>;
-  public abi: ContractInterface;
-  public metadata: ContractMetadata<BaseContract, any>;
-  public appURI: ContractAppURI<BaseContract>;
+  public events: ContractEvents<TContract, TAbi>;
+  public interceptor: ContractInterceptor<TContract, TAbi>;
+  public encoder: ContractEncoder<TContract, TAbi>;
+  public estimator: GasCostEstimator<TContract, TAbi>;
+  public publishedMetadata: ContractPublishedMetadata<TContract, TAbi>;
+  public abi: TAbi;
+  public metadata: ContractMetadata<BaseContract, any, TAbi>;
+  public appURI: ContractAppURI<BaseContract, TAbi>;
 
   /**
    * Handle royalties
@@ -156,14 +155,14 @@ export class SmartContract<
   constructor(
     network: NetworkOrSignerOrProvider,
     address: string,
-    abi: ContractInterface,
+    abi: TAbi,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
     chainId: number,
     contractWrapper = new ContractWrapper<TContract>(
       network,
       address,
-      abi,
+      abi as Abi, // TODO (abi) - type contract wrapper
       options,
     ),
   ) {
@@ -219,17 +218,16 @@ export class SmartContract<
    * @param functionName - the name of the function to call
    * @param args - the arguments of the function
    */
-  public async call<
-    TName extends ExtractAbiFunctionNames<TAbi>,
-    TParams extends AbiParametersToPrimitiveTypes<
-      ExtractAbiFunction<TAbi, TName>["inputs"]
-    >,
-  >(
-    functionName: TName,
-    args: TParams,
-    // TODO re-add as sep param | callOverrides?: CallOverrides,
+  public async call<TFunctionName extends string = string>(
+    functionName: GetFunctionName<TAbi, TFunctionName>,
+    args?: GetArgs<TAbi, TFunctionName>,
+    txOverrides?: CallOverrides,
   ): Promise<any> {
-    return this.contractWrapper.call(functionName, ...args);
+    return this.contractWrapper.call(
+      functionName,
+      args ? (args as unknown[]) : [], // TODO (abi) fix types at contract-wrapper level
+      txOverrides,
+    );
   }
 
   /** ********************

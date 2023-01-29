@@ -1,4 +1,5 @@
 import { EventType } from "../../constants";
+import { Abi } from "../../schema";
 import { ContractEvent, EventQueryOptions } from "../../types/index";
 import { ContractWrapper } from "./contract-wrapper";
 import { EventFragment } from "@ethersproject/abi";
@@ -9,7 +10,10 @@ import type { EventEmitter } from "eventemitter3";
  * Listen to Contract events in real time
  * @public
  */
-export class ContractEvents<TContract extends BaseContract> {
+export class ContractEvents<
+  TContract extends BaseContract,
+  TAbi extends Abi | readonly unknown[] = Abi,
+> {
   protected contractWrapper;
 
   constructor(contractWrapper: ContractWrapper<TContract>) {

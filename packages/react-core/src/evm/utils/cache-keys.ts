@@ -109,7 +109,7 @@ export const cacheKeys = {
     call: (
       contractAddress: RequiredParam<ContractAddress>,
       functionName: RequiredParam<string>,
-      args: unknown[],
+      args: readonly unknown[],
     ) => createContractCacheKey(contractAddress, ["call", functionName, args]),
 
     events: {

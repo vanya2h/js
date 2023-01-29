@@ -41,7 +41,7 @@ export async function fetchContractMetadataFromAddress(
   address: string,
   provider: providers.Provider,
   storage: ThirdwebStorage,
-) {
+): Promise<PublishedMetadata> {
   const chainId = (await provider.getNetwork()).chainId;
   const cached = getFromCache(address, chainId);
   if (cached) {

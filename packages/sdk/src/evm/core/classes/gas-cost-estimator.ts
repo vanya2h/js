@@ -1,3 +1,4 @@
+import { Abi } from "../../schema";
 import { ContractWrapper } from "./contract-wrapper";
 import { BaseContract, BigNumber, ethers } from "ethers";
 
@@ -5,7 +6,10 @@ import { BaseContract, BigNumber, ethers } from "ethers";
  * Estimates the gas cost of Contract calls
  * @public
  */
-export class GasCostEstimator<TContract extends BaseContract> {
+export class GasCostEstimator<
+  TContract extends BaseContract,
+  TAbi extends Abi | readonly unknown[] = Abi,
+> {
   private contractWrapper;
 
   constructor(contractWrapper: ContractWrapper<TContract>) {

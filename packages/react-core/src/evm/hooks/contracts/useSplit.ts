@@ -32,10 +32,10 @@ import { useContract } from "../async/contracts";
  * + const split = useContract("0x1234...", "split").contract;
  * ```
  */
-export function useSplit(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useSplit("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "split")`,
-  );
-  return useContract(contractAddress, "split").contract;
-}
+// export function useSplit(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useSplit("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "split")`,
+//   );
+//   return useContract(contractAddress, "split").contract;
+// }

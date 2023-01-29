@@ -32,10 +32,10 @@ import { useContract } from "../async/contracts";
  * + const nftCollection = useContract("0x1234...", "nft-collection").contract;
  * ```
  */
-export function useNFTCollection(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useNFTCollection("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "nft-collection")`,
-  );
-  return useContract(contractAddress, "nft-collection").contract;
-}
+// export function useNFTCollection(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useNFTCollection("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "nft-collection")`,
+//   );
+//   return useContract(contractAddress, "nft-collection").contract;
+// }

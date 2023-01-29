@@ -6,7 +6,7 @@ import {
 import { fetchCurrencyMetadata } from "../../common";
 import { LINK_TOKEN_ADDRESS } from "../../constants";
 import { FEATURE_PACK_VRF } from "../../constants/thirdweb-features";
-import { PackRewards, SDKOptions } from "../../schema";
+import { AbiSchema, PackRewards, SDKOptions } from "../../schema";
 import { Amount, CurrencyValue } from "../../types";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { UpdateableNetwork } from "../interfaces/contract";
@@ -40,7 +40,7 @@ export class PackVRF implements UpdateableNetwork, DetectableFeature {
     contractWrapper: ContractWrapper<PackVRFDirect> = new ContractWrapper(
       network,
       address,
-      IPackAbi,
+      AbiSchema.parse(IPackAbi),
       options,
     ),
   ) {
@@ -270,7 +270,7 @@ export class PackVRF implements UpdateableNetwork, DetectableFeature {
     const contract = new ContractWrapper<ERC20>(
       this.contractWrapper.getSignerOrProvider(),
       linkAddress,
-      ERC20Abi,
+      AbiSchema.parse(ERC20Abi),
       this.contractWrapper.options,
     );
     return new Erc20(contract, this.storage, this.chainId);

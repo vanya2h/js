@@ -4,6 +4,7 @@ import {
   NATIVE_TOKEN_ADDRESS,
 } from "../constants/currency";
 import { ContractWrapper } from "../core/classes/contract-wrapper";
+import { AbiSchema } from "../schema";
 import { Amount, Currency, CurrencyValue, Price } from "../types/currency";
 import { BaseERC20 } from "../types/eips";
 import type { IERC20, IERC20Metadata } from "@thirdweb-dev/contracts-js";
@@ -123,7 +124,7 @@ export async function setErc20Allowance(
     const erc20 = new ContractWrapper<IERC20>(
       signer || provider,
       currencyAddress,
-      ERC20Abi,
+      AbiSchema.parse(ERC20Abi),
       contractToApprove.options,
     );
 
@@ -150,7 +151,7 @@ export async function approveErc20Allowance(
   const erc20 = new ContractWrapper<IERC20>(
     signer || provider,
     currencyAddress,
-    ERC20Abi,
+    AbiSchema.parse(ERC20Abi),
     contractToApprove.options,
   );
   const owner = await contractToApprove.getSignerAddress();
@@ -176,7 +177,7 @@ export async function hasERC20Allowance(
   const erc20 = new ContractWrapper<IERC20>(
     provider,
     currencyAddress,
-    ERC20Abi,
+    AbiSchema.parse(ERC20Abi),
     {},
   );
   const owner = await contractToApprove.getSignerAddress();
@@ -205,6 +206,9 @@ export function toUnits(amount: Amount, decimals: BigNumberish): BigNumber {
   return utils.parseUnits(AmountSchema.parse(amount), decimals);
 }
 
-export function toDisplayValue(amount: BigNumberish, decimals: BigNumberish): string {
+export function toDisplayValue(
+  amount: BigNumberish,
+  decimals: BigNumberish,
+): string {
   return utils.formatUnits(amount, decimals);
 }

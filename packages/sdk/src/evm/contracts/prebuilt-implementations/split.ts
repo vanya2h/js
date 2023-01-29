@@ -376,8 +376,9 @@ export class Split implements UpdateableNetwork {
    */
   public async call(
     functionName: string,
-    ...args: unknown[] | [...unknown[], CallOverrides]
+    args?: unknown[],
+    txOverrides?: CallOverrides,
   ): Promise<any> {
-    return this.contractWrapper.call(functionName, ...args);
+    return this.contractWrapper.call(functionName, args || [], txOverrides);
   }
 }

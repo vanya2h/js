@@ -9,6 +9,9 @@ import { DetectableFeature } from "../core/interfaces/DetectableFeature";
 import { decode } from "../lib/cbor-decode.js";
 import {
   Abi,
+  AbiEvent,
+  AbiFunction,
+  AbiParameter,
   AbiSchema,
   FullPublishMetadata,
   FullPublishMetadataSchemaOutput,
@@ -19,7 +22,6 @@ import {
 import { ExtensionNotImplementedError } from "./error";
 import { fetchContractMetadata } from "./metadata-resolver";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
-import { AbiParameter, AbiFunction, AbiEvent, SolidityTuple } from "abitype";
 import bs58 from "bs58";
 import { BaseContract, BigNumber, ethers } from "ethers";
 import invariant from "tiny-invariant";
@@ -64,15 +66,22 @@ export function hasMatchingAbi(contractAbi: Abi, featureAbis: readonly Abi[]) {
   const intersection = contractFn.filter((fn) => {
     const match = interfaceFn.find(
       (iFn) =>
+        iFn.type === "function" &&
+        fn.type === "function" &&
         iFn.name === fn.name &&
         iFn.inputs.length === fn.inputs.length &&
         iFn.inputs.every((i, index) => {
           if (i.type === "tuple" || i.type === "tuple[]") {
             // check that all properties in the tuple are the same type
             return (
+              "components" in i &&
               i.type === fn.inputs[index].type &&
               i.components?.every((c, cIndex) => {
-                return c.type === fn.inputs[index].components?.[cIndex]?.type;
+                const innerParam = fn.inputs[index];
+                return (
+                  "components" in innerParam &&
+                  c.type === innerParam.components?.[cIndex]?.type
+                );
               })
             );
           }
@@ -139,7 +148,9 @@ function extractCommentFromMetadata(
  * @returns
  * @internal
  */
-export function extractConstructorParamsFromAbi(abi: Abi) {
+export function extractConstructorParamsFromAbi(
+  abi: Abi,
+): readonly AbiParameter[] {
   for (const input of abi) {
     if (input.type === "constructor") {
       return input.inputs || [];
@@ -155,7 +166,10 @@ export function extractConstructorParamsFromAbi(abi: Abi) {
  * @returns
  * @internal
  */
-export function extractFunctionParamsFromAbi(abi: Abi, functionName: string) {
+export function extractFunctionParamsFromAbi(
+  abi: Abi,
+  functionName: string,
+): readonly AbiParameter[] {
   for (const input of abi) {
     if (input.type === "function" && input.name === functionName) {
       return input.inputs || [];
@@ -187,11 +201,8 @@ export function extractFunctionsFromAbi(
     const promise = out ? `: Promise<${out}>` : `: Promise<TransactionResult>`;
     const signature = `contract.call("${f.name}"${fargs})${promise}`;
     parsed.push({
-      inputs: f.inputs || [],
-      outputs: f.outputs || [],
-      name: f.name || "unknown",
+      ...f,
       signature,
-      stateMutability: f.stateMutability || "",
       comment: doc,
     });
   }
@@ -213,8 +224,7 @@ export function extractEventsFromAbi(
     invariant(e.type === "event", "Expected event type");
     const doc = extractCommentFromMetadata(e.name, metadata, "events");
     parsed.push({
-      inputs: e.inputs || [],
-      name: e.name || "unknown",
+      ...e,
       comment: doc,
     });
   }
@@ -528,10 +538,7 @@ export function getAllDetectedFeatureNames(abi: Abi): string[] {
  * @param abi
  * @param featureName
  */
-export function isFeatureEnabled(
-  abi: z.input<typeof AbiSchema>,
-  featureName: FeatureName,
-): boolean {
+export function isFeatureEnabled(abi: Abi, featureName: FeatureName): boolean {
   const features = detectFeatures(abi);
   return _featureEnabled(features, featureName);
 }

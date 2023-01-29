@@ -1,6 +1,13 @@
 /// --- Thirdweb Brige ---
 import { CoinbasePayIntegration, FundWalletOptions } from "@thirdweb-dev/pay";
-import { ChainOrRpc, ThirdwebSDK, getRpcUrl } from "@thirdweb-dev/sdk";
+import {
+  ChainOrRpc,
+  ThirdwebSDK,
+  getRpcUrl,
+  Abi,
+  AbiSchema,
+  ContractType,
+} from "@thirdweb-dev/sdk";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import type { AbstractBrowserWallet } from "@thirdweb-dev/wallets/evm/wallets/base";
 import { CoinbaseWallet } from "@thirdweb-dev/wallets/evm/wallets/coinbase-wallet";
@@ -8,8 +15,8 @@ import { InjectedWallet } from "@thirdweb-dev/wallets/evm/wallets/injected";
 import { MagicAuthWallet } from "@thirdweb-dev/wallets/evm/wallets/magic-auth";
 import { MetaMask } from "@thirdweb-dev/wallets/evm/wallets/metamask";
 import { WalletConnect } from "@thirdweb-dev/wallets/evm/wallets/wallet-connect";
-import { BigNumber } from "ethers";
-import type { ContractInterface, Signer } from "ethers";
+import { BigNumber, ContractInterface } from "ethers";
+import type { Signer } from "ethers";
 
 declare global {
   interface Window {
@@ -188,17 +195,20 @@ class ThirdwebBridge implements TWBridge {
 
     // contract call
     if (addrOrSDK.startsWith("0x")) {
-      let typeOrAbi: string | ContractInterface | undefined;
+      let typeOrAbi: ContractType | Abi | undefined;
       if (firstArg.length > 1) {
         try {
-          typeOrAbi = JSON.parse(firstArg[1]); // try to parse ABI
+          typeOrAbi = AbiSchema.parse(firstArg[1]) as Abi; // try to parse ABI
         } catch (e) {
-          typeOrAbi = firstArg[1];
+          typeOrAbi = firstArg[1] as ContractType;
         }
       }
-      const contract = typeOrAbi
-        ? await this.activeSDK.getContract(addrOrSDK, typeOrAbi)
-        : await this.activeSDK.getContract(addrOrSDK);
+      const contract =
+        typeof typeOrAbi === "string"
+          ? await this.activeSDK.getContract(addrOrSDK, typeOrAbi)
+          : Array.isArray(typeOrAbi)
+          ? await this.activeSDK.getContract(addrOrSDK, typeOrAbi)
+          : await this.activeSDK.getContract(addrOrSDK);
       if (routeArgs.length === 2) {
         // @ts-expect-error need to type-guard this properly
         const result = await contract[routeArgs[1]](...parsedArgs);

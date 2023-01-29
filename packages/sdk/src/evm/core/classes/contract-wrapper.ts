@@ -13,7 +13,7 @@ import { CONTRACT_ADDRESSES, ChainId } from "../../constants";
 import { getContractAddressByChainId } from "../../constants/addresses";
 import { EventType } from "../../constants/events";
 import { CallOverrideSchema } from "../../schema";
-import { AbiSchema } from "../../schema/contracts/custom";
+import { Abi, AbiSchema } from "../../schema/contracts/custom";
 import { SDKOptions } from "../../schema/sdk-options";
 import {
   ForwardRequestMessage,
@@ -55,7 +55,7 @@ export class ContractWrapper<
   constructor(
     network: NetworkOrSignerOrProvider,
     contractAddress: string,
-    contractAbi: ContractInterface,
+    contractAbi: Abi,
     options: SDKOptions,
   ) {
     super(network, options);
@@ -63,7 +63,7 @@ export class ContractWrapper<
     // set up the contract
     this.writeContract = new Contract(
       contractAddress,
-      contractAbi,
+      contractAbi as ContractInterface, // TODO (abi) - fix this typing between ethers and abitype
       this.getSignerOrProvider(),
     ) as TContract;
     // setup the read only contract
@@ -264,23 +264,24 @@ export class ContractWrapper<
    */
   public async call(
     functionName: string,
-    ...args: unknown[] | [...unknown[], CallOverrides]
+    args: unknown[],
+    callOverrides?: CallOverrides,
   ): Promise<any> {
     // parse last arg as tx options if present
-    let txOptions: CallOverrides | undefined;
-    try {
-      if (args.length > 0 && typeof args[args.length - 1] === "object") {
-        const last = args[args.length - 1];
-        txOptions = CallOverrideSchema.parse(last);
-        // if call overrides found, remove it from args array
-        args = args.slice(0, args.length - 1);
-      }
-    } catch (e) {
-      // no-op
-    }
+    let txOptions: CallOverrides | undefined = callOverrides;
+    // try {
+    //   if (args.length > 0 && typeof args[args.length - 1] === "object") {
+    //     const last = args[args.length - 1];
+    //     txOptions = CallOverrideSchema.parse(last);
+    //     // if call overrides found, remove it from args array
+    //     args = args.slice(0, args.length - 1);
+    //   }
+    // } catch (e) {
+    //   // no-op
+    // }
 
     const functions = extractFunctionsFromAbi(AbiSchema.parse(this.abi)).filter(
-      (f) => f.name === functionName,
+      (f) => f.type === "function" && f.name === functionName,
     );
 
     if (!functions.length) {
@@ -289,15 +290,21 @@ export class ContractWrapper<
       );
     }
     const fn = functions.find(
-      (f) => f.name === functionName && f.inputs.length === args.length,
+      (f) =>
+        f.type === "function" &&
+        f.name === functionName &&
+        f.inputs.length === args.length,
     );
 
     // TODO extract this and re-use for deploy function to check constructor args
     if (!fn) {
+      invariant(functions[0].type === "function", "Expected function");
       throw new Error(
         `Function "${functionName}" requires ${functions[0].inputs.length} arguments, but ${args.length} were provided.\nExpected function signature: ${functions[0].signature}`,
       );
     }
+
+    invariant(fn.type === "function", "Expected function");
 
     const ethersFnName = `${functionName}(${fn.inputs
       .map((i) => i.type)

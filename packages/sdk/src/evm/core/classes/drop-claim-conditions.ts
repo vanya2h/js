@@ -21,6 +21,7 @@ import { SnapshotFormatVersion } from "../../common/sharded-merkle-tree";
 import { isNode } from "../../common/utils";
 import { ClaimEligibility } from "../../enums";
 import {
+  AbiSchema,
   AbstractClaimConditionContractStruct,
   SnapshotEntryWithProof,
 } from "../../schema";
@@ -464,7 +465,7 @@ export class DropClaimConditions<
         const erc20 = new ContractWrapper<IERC20>(
           provider,
           claimCondition.currencyAddress,
-          ERC20Abi,
+          AbiSchema.parse(ERC20Abi),
           {},
         );
         const balance = await erc20.readContract.balanceOf(addressToCheck);

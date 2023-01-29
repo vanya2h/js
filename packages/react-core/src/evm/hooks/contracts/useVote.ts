@@ -32,10 +32,10 @@ import { useContract } from "../async/contracts";
  * + const vote = useContract("0x1234...", "vote").contract;
  * ```
  */
-export function useVote(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useVote("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "vote")`,
-  );
-  return useContract(contractAddress, "vote").contract;
-}
+// export function useVote(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useVote("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "vote")`,
+//   );
+//   return useContract(contractAddress, "vote").contract;
+// }

@@ -32,10 +32,10 @@ import { useContract } from "../async/contracts";
  * + const edition = useContract("0x1234...", "edition").contract;
  * ```
  */
-export function useEdition(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useEdition("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "edition")`,
-  );
-  return useContract(contractAddress, "edition").contract;
-}
+// export function useEdition(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useEdition("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "edition")`,
+//   );
+//   return useContract(contractAddress, "edition").contract;
+// }

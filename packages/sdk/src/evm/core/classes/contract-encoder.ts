@@ -1,3 +1,4 @@
+import { Abi } from "../../schema";
 import { ContractWrapper } from "./contract-wrapper";
 import { BaseContract, utils } from "ethers";
 
@@ -5,7 +6,10 @@ import { BaseContract, utils } from "ethers";
  * Encodes and decodes Contract functions
  * @public
  */
-export class ContractEncoder<TContract extends BaseContract> {
+export class ContractEncoder<
+  TContract extends BaseContract,
+  TAbi extends Abi | readonly unknown[] = Abi,
+> {
   private contractWrapper;
 
   constructor(contractWrapper: ContractWrapper<TContract>) {

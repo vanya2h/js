@@ -22,7 +22,11 @@ import {
   TokenInitializer,
   VoteInitializer,
 } from "../../contracts";
-import { FactoryDeploymentSchema } from "../../schema/contracts/custom";
+import {
+  Abi,
+  AbiSchema,
+  FactoryDeploymentSchema,
+} from "../../schema/contracts/custom";
 import { SDKOptions } from "../../schema/sdk-options";
 import { DeployEvent, DeployEvents } from "../../types";
 import {
@@ -521,7 +525,7 @@ export class ContractDeployer extends RPCConnectionHandler {
   public async deployViaFactory(
     factoryAddress: string,
     implementationAddress: string,
-    implementationAbi: ContractInterface,
+    implementationAbi: Abi,
     initializerFunction: string,
     initializerArgs: any[],
   ): Promise<string> {
@@ -555,18 +559,18 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployProxy(
     implementationAddress: string,
-    implementationAbi: ContractInterface,
+    implementationAbi: Abi,
     initializerFunction: string,
     initializerArgs: any[],
   ): Promise<string> {
     const encodedInitializer = Contract.getInterface(
-      implementationAbi,
+      implementationAbi as ContractInterface,
     ).encodeFunctionData(initializerFunction, initializerArgs);
     const { TWProxy__factory } = await import(
       "@thirdweb-dev/contracts-js/factories/TWProxy__factory"
     );
     return this.deployContractWithAbi(
-      TWProxy__factory.abi,
+      AbiSchema.parse(TWProxy__factory.abi),
       TWProxy__factory.bytecode,
       [implementationAddress, encodedInitializer],
     );
@@ -731,7 +735,7 @@ export class ContractDeployer extends RPCConnectionHandler {
         return await this.deployViaFactory(
           factoryAddress,
           implementationAddress,
-          compilerMetadata.abi,
+          AbiSchema.parse(compilerMetadata.abi),
           factoryDeploymentData.implementationInitializerFunction,
           paramValues,
         );
@@ -739,7 +743,7 @@ export class ContractDeployer extends RPCConnectionHandler {
         // deploy a proxy directly
         return await this.deployProxy(
           implementationAddress,
-          compilerMetadata.abi,
+          AbiSchema.parse(compilerMetadata.abi),
           factoryDeploymentData.implementationInitializerFunction,
           paramValues,
         );
@@ -810,13 +814,16 @@ export class ContractDeployer extends RPCConnectionHandler {
    * @param constructorParams
    */
   public async deployContractWithAbi(
-    abi: ContractInterface,
+    abi: Abi,
     bytecode: BytesLike | { object: string },
     constructorParams: Array<any>,
   ): Promise<string> {
     const signer = this.getSigner();
     invariant(signer, "Signer is required to deploy contracts");
-    const deployer = await new ethers.ContractFactory(abi, bytecode)
+    const deployer = await new ethers.ContractFactory(
+      abi as ContractInterface,
+      bytecode,
+    )
       .connect(signer)
       .deploy(...constructorParams);
     this.events.emit("contractDeployed", {

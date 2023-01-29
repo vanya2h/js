@@ -1,4 +1,5 @@
 import { TransactionResult } from "..";
+import { AbiSchema } from "../../schema/contracts/custom";
 import { SDKOptions } from "../../schema/sdk-options";
 import { NetworkOrSignerOrProvider } from "../types";
 import { ContractWrapper } from "./contract-wrapper";
@@ -15,7 +16,7 @@ export class ContractRegistry extends ContractWrapper<TWRegistry> {
     network: NetworkOrSignerOrProvider,
     options?: SDKOptions,
   ) {
-    super(network, registryAddress, TWRegistryABI, options);
+    super(network, registryAddress, AbiSchema.parse(TWRegistryABI), options);
   }
 
   public async getContractAddresses(walletAddress: string) {

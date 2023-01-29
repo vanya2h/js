@@ -584,8 +584,9 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    */
   public async call(
     functionName: string,
-    ...args: unknown[] | [...unknown[], CallOverrides]
+    args?: unknown[],
+    txOverrides?: CallOverrides,
   ): Promise<any> {
-    return this.contractWrapper.call(functionName, ...args);
+    return this.contractWrapper.call(functionName, args || [], txOverrides);
   }
 }

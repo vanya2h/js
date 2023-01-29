@@ -1,5 +1,6 @@
 import { detectContractFeature } from "../../common";
 import { FEATURE_APPURI } from "../../constants/thirdweb-features";
+import { Abi } from "../../schema";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResult } from "../types";
 import { ContractMetadata } from "./contract-metadata";
@@ -20,16 +21,18 @@ import { BaseContract } from "ethers";
  * ```
  * @public
  */
-export class ContractAppURI<TContract extends BaseContract>
-  implements DetectableFeature
+export class ContractAppURI<
+  TContract extends BaseContract,
+  TAbi extends Abi | readonly unknown[] = Abi,
+> implements DetectableFeature
 {
   featureName = FEATURE_APPURI.name;
   private contractWrapper;
-  metadata: ContractMetadata<BaseContract, any>;
+  metadata: ContractMetadata<BaseContract, any, TAbi>;
 
   constructor(
     contractWrapper: ContractWrapper<TContract>,
-    metadata: ContractMetadata<BaseContract, any>,
+    metadata: ContractMetadata<BaseContract, any, TAbi>,
   ) {
     this.contractWrapper = contractWrapper;
     this.metadata = metadata;

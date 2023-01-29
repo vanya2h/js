@@ -4,6 +4,7 @@ import {
   fetchContractMetadataFromAddress,
 } from "../../common";
 import {
+  Abi,
   AbiEvent,
   AbiFunction,
   AbiSchema,
@@ -17,7 +18,10 @@ import { BaseContract } from "ethers";
  * Handles publish metadata for a contract
  * @internal
  */
-export class ContractPublishedMetadata<TContract extends BaseContract> {
+export class ContractPublishedMetadata<
+  TContract extends BaseContract,
+  TAbi extends Abi | readonly unknown[] = Abi,
+> {
   private contractWrapper;
   private storage: ThirdwebStorage;
 

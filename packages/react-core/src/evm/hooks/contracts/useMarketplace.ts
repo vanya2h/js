@@ -32,10 +32,10 @@ import { useContract } from "../async/contracts";
  * + const marketplace = useContract("0x1234...", "marketplace").contract;
  * ```
  */
-export function useMarketplace(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useMarketplace("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "marketplace")`,
-  );
-  return useContract(contractAddress, "marketplace").contract;
-}
+// export function useMarketplace(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useMarketplace("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "marketplace")`,
+//   );
+//   return useContract(contractAddress, "marketplace").contract;
+// }

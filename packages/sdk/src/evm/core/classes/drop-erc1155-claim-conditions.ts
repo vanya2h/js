@@ -19,6 +19,7 @@ import { SnapshotFormatVersion } from "../../common/sharded-merkle-tree";
 import { isNode } from "../../common/utils";
 import { ClaimEligibility } from "../../enums";
 import {
+  AbiSchema,
   AbstractClaimConditionContractStruct,
   SnapshotEntryWithProof,
 } from "../../schema";
@@ -459,7 +460,7 @@ export class DropErc1155ClaimConditions<
         const erc20 = new ContractWrapper<IERC20>(
           provider,
           claimCondition.currencyAddress,
-          IERC20ABI,
+          AbiSchema.parse(IERC20ABI),
           {},
         );
 

@@ -4,6 +4,7 @@ import {
   InterfaceId_IERC721,
 } from "../constants/contract";
 import { ContractWrapper } from "../core/classes/contract-wrapper";
+import { AbiSchema } from "../schema";
 import {
   NewAuctionListing,
   NewDirectListing,
@@ -91,7 +92,7 @@ export async function handleTokenApproval(
   const erc165 = new ContractWrapper<IERC165>(
     contractWrapper.getSignerOrProvider(),
     assetContract,
-    ERC165Abi,
+    AbiSchema.parse(ERC165Abi),
     contractWrapper.options,
   );
   const isERC721 = await erc165.readContract.supportsInterface(
@@ -105,7 +106,7 @@ export async function handleTokenApproval(
     const asset = new ContractWrapper<IERC721>(
       contractWrapper.getSignerOrProvider(),
       assetContract,
-      ERC721Abi,
+      AbiSchema.parse(ERC721Abi),
       contractWrapper.options,
     );
     const approved = await asset.readContract.isApprovedForAll(
@@ -128,7 +129,7 @@ export async function handleTokenApproval(
     const asset = new ContractWrapper<IERC1155>(
       contractWrapper.getSignerOrProvider(),
       assetContract,
-      ERC1155Abi,
+      AbiSchema.parse(ERC1155Abi),
       contractWrapper.options,
     );
 

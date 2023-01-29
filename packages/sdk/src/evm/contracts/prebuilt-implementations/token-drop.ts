@@ -279,8 +279,9 @@ export class TokenDrop extends StandardErc20<PrebuiltTokenDrop> {
    */
   public async call(
     functionName: string,
-    ...args: unknown[] | [...unknown[], CallOverrides]
+    args?: unknown[],
+    txOverrides?: CallOverrides,
   ): Promise<any> {
-    return this.contractWrapper.call(functionName, ...args);
+    return this.contractWrapper.call(functionName, args || [], txOverrides);
   }
 }

@@ -18,6 +18,7 @@ import {
   TokenInitializer,
   VoteInitializer,
 } from "../../contracts";
+import { Abi, AbiSchema } from "../../schema";
 import { SDKOptions } from "../../schema/sdk-options";
 import { DeployEvents } from "../../types";
 import {
@@ -68,7 +69,7 @@ export class ContractFactory extends ContractWrapper<TWFactory> {
     storage: ThirdwebStorage,
     options?: SDKOptions,
   ) {
-    super(network, factoryAddr, TWFactoryAbi, options);
+    super(network, factoryAddr, AbiSchema.parse(TWFactoryAbi), options);
     this.storage = storage;
   }
 
@@ -104,7 +105,9 @@ export class ContractFactory extends ContractWrapper<TWFactory> {
       this.storage,
     );
 
-    const encodedFunc = Contract.getInterface(ABI).encodeFunctionData(
+    const encodedFunc = Contract.getInterface(
+      ABI as ContractInterface,
+    ).encodeFunctionData(
       "initialize",
       await this.getDeployArguments(contractType, metadata, contractURI),
     );
@@ -138,13 +141,13 @@ export class ContractFactory extends ContractWrapper<TWFactory> {
   // TODO once IContractFactory is implemented, this can be probably be moved to its own class
   public async deployProxyByImplementation(
     implementationAddress: string,
-    implementationAbi: ContractInterface,
+    implementationAbi: Abi,
     initializerFunction: string,
     initializerArgs: any[],
     eventEmitter: EventEmitter<DeployEvents>,
   ): Promise<string> {
     const encodedFunc = Contract.getInterface(
-      implementationAbi,
+      implementationAbi as ContractInterface,
     ).encodeFunctionData(initializerFunction, initializerArgs);
 
     const blockNumber = await this.getProvider().getBlockNumber();

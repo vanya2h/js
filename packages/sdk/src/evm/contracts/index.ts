@@ -20,7 +20,11 @@ import {
   TokenErc721ContractSchema,
   VoteContractSchema,
 } from "../schema";
-import { Abi, CustomContractSchema } from "../schema/contracts/custom";
+import {
+  Abi,
+  AbiSchema,
+  CustomContractSchema,
+} from "../schema/contracts/custom";
 import { DropErc20ContractSchema } from "../schema/contracts/drop-erc20";
 import { MultiwrapContractSchema } from "../schema/contracts/multiwrap";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
@@ -68,14 +72,19 @@ export const EditionDropInitializer = {
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
     const contractInfo = await getContractInfo(address, provider);
-    return !contractInfo || contractInfo.version > 2
-      ? (await import("@thirdweb-dev/contracts-js/dist/abis/DropERC1155.json"))
-          .default
-      : (
-          await import(
-            "@thirdweb-dev/contracts-js/dist/abis/DropERC1155_V2.json"
-          )
-        ).default;
+    return AbiSchema.parse(
+      !contractInfo || contractInfo.version > 2
+        ? (
+            await import(
+              "@thirdweb-dev/contracts-js/dist/abis/DropERC1155.json"
+            )
+          ).default
+        : (
+            await import(
+              "@thirdweb-dev/contracts-js/dist/abis/DropERC1155_V2.json"
+            )
+          ).default,
+    );
   },
 };
 
@@ -113,9 +122,10 @@ export const EditionInitializer = {
       return abi;
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
-    return (
-      await import("@thirdweb-dev/contracts-js/dist/abis/TokenERC1155.json")
-    ).default;
+    return AbiSchema.parse(
+      (await import("@thirdweb-dev/contracts-js/dist/abis/TokenERC1155.json"))
+        .default,
+    );
   },
 };
 
@@ -153,9 +163,10 @@ export const MarketplaceInitializer = {
       return abi;
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
-    return (
-      await import("@thirdweb-dev/contracts-js/dist/abis/Marketplace.json")
-    ).default;
+    return AbiSchema.parse(
+      (await import("@thirdweb-dev/contracts-js/dist/abis/Marketplace.json"))
+        .default,
+    );
   },
 };
 
@@ -193,8 +204,10 @@ export const MultiwrapInitializer = {
       return abi;
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
-    return (await import("@thirdweb-dev/contracts-js/dist/abis/Multiwrap.json"))
-      .default;
+    return AbiSchema.parse(
+      (await import("@thirdweb-dev/contracts-js/dist/abis/Multiwrap.json"))
+        .default,
+    );
   },
 };
 
@@ -233,9 +246,10 @@ export const NFTCollectionInitializer = {
       return abi;
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
-    return (
-      await import("@thirdweb-dev/contracts-js/dist/abis/TokenERC721.json")
-    ).default;
+    return AbiSchema.parse(
+      (await import("@thirdweb-dev/contracts-js/dist/abis/TokenERC721.json"))
+        .default,
+    );
   },
 };
 
@@ -274,14 +288,16 @@ export const NFTDropInitializer = {
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
     const contractInfo = await getContractInfo(address, provider);
-    return !contractInfo || contractInfo.version > 3
-      ? (await import("@thirdweb-dev/contracts-js/dist/abis/DropERC721.json"))
-          .default
-      : (
-          await import(
-            "@thirdweb-dev/contracts-js/dist/abis/DropERC721_V3.json"
-          )
-        ).default;
+    return AbiSchema.parse(
+      !contractInfo || contractInfo.version > 3
+        ? (await import("@thirdweb-dev/contracts-js/dist/abis/DropERC721.json"))
+            .default
+        : (
+            await import(
+              "@thirdweb-dev/contracts-js/dist/abis/DropERC721_V3.json"
+            )
+          ).default,
+    );
   },
 };
 
@@ -320,8 +336,9 @@ export const PackInitializer = {
       return abi;
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
-    return (await import("@thirdweb-dev/contracts-js/dist/abis/Pack.json"))
-      .default;
+    return AbiSchema.parse(
+      (await import("@thirdweb-dev/contracts-js/dist/abis/Pack.json")).default,
+    );
   },
 };
 
@@ -361,17 +378,19 @@ export const SignatureDropInitializer = {
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
     const contractInfo = await getContractInfo(address, provider);
-    return !contractInfo || contractInfo.version > 4
-      ? (
-          await import(
-            "@thirdweb-dev/contracts-js/dist/abis/SignatureDrop.json"
-          )
-        ).default
-      : (
-          await import(
-            "@thirdweb-dev/contracts-js/dist/abis/SignatureDrop_V4.json"
-          )
-        ).default;
+    return AbiSchema.parse(
+      !contractInfo || contractInfo.version > 4
+        ? (
+            await import(
+              "@thirdweb-dev/contracts-js/dist/abis/SignatureDrop.json"
+            )
+          ).default
+        : (
+            await import(
+              "@thirdweb-dev/contracts-js/dist/abis/SignatureDrop_V4.json"
+            )
+          ).default,
+    );
   },
 };
 
@@ -410,8 +429,9 @@ export const SplitInitializer = {
       return abi;
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
-    return (await import("@thirdweb-dev/contracts-js/dist/abis/Split.json"))
-      .default;
+    return AbiSchema.parse(
+      (await import("@thirdweb-dev/contracts-js/dist/abis/Split.json")).default,
+    );
   },
 };
 
@@ -451,11 +471,16 @@ export const TokenDropInitializer = {
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
     const contractInfo = await getContractInfo(address, provider);
-    return !contractInfo || contractInfo.version > 2
-      ? (await import("@thirdweb-dev/contracts-js/dist/abis/DropERC20.json"))
-          .default
-      : (await import("@thirdweb-dev/contracts-js/dist/abis/DropERC20_V2.json"))
-          .default;
+    return AbiSchema.parse(
+      !contractInfo || contractInfo.version > 2
+        ? (await import("@thirdweb-dev/contracts-js/dist/abis/DropERC20.json"))
+            .default
+        : (
+            await import(
+              "@thirdweb-dev/contracts-js/dist/abis/DropERC20_V2.json"
+            )
+          ).default,
+    );
   },
 };
 
@@ -493,9 +518,10 @@ export const TokenInitializer = {
       return abi;
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
-    return (
-      await import("@thirdweb-dev/contracts-js/dist/abis/TokenERC20.json")
-    ).default;
+    return AbiSchema.parse(
+      (await import("@thirdweb-dev/contracts-js/dist/abis/TokenERC20.json"))
+        .default,
+    );
   },
 };
 
@@ -534,8 +560,10 @@ export const VoteInitializer = {
       return abi;
     }
     // Deprecated - only needed for backwards compatibility with non-released contracts - should remove in v4
-    return (await import("@thirdweb-dev/contracts-js/dist/abis/VoteERC20.json"))
-      .default;
+    return AbiSchema.parse(
+      (await import("@thirdweb-dev/contracts-js/dist/abis/VoteERC20.json"))
+        .default,
+    );
   },
 };
 

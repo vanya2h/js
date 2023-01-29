@@ -1,6 +1,6 @@
 import { NetworkOrSignerOrProvider, TransactionResult } from "..";
 import { getMultichainRegistryAddress } from "../../constants/addresses";
-import { PublishedMetadata } from "../../schema/contracts/custom";
+import { AbiSchema, PublishedMetadata } from "../../schema/contracts/custom";
 import { SDKOptions } from "../../schema/sdk-options";
 import { AddContractInput, ContractInput, DeployedContract } from "../../types";
 import { ContractWrapper } from "./contract-wrapper";
@@ -30,14 +30,14 @@ export class MultichainRegistry {
     this.registryLogic = new ContractWrapper<TWMultichainRegistryLogic>(
       network,
       getMultichainRegistryAddress(),
-      TWRegistryABI,
+      AbiSchema.parse(TWRegistryABI),
       options,
     );
 
     this.registryRouter = new ContractWrapper<TWMultichainRegistryRouter>(
       network,
       getMultichainRegistryAddress(),
-      TWRegistryRouterABI,
+      AbiSchema.parse(TWRegistryRouterABI),
       options,
     );
   }

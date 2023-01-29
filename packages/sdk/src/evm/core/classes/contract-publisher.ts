@@ -12,7 +12,7 @@ import { isIncrementalVersion } from "../../common/version-checker";
 import { getContractPublisherAddress } from "../../constants";
 import {
   AbiFunction,
-  ContractParam,
+  AbiSchema,
   ContractSource,
   ExtraPublishMetadata,
   FullPublishMetadata,
@@ -24,6 +24,7 @@ import {
   PublishedContract,
   PublishedContractFetched,
   PublishedContractSchema,
+  PublishedMetadata,
 } from "../../schema/contracts/custom";
 import { SDKOptions } from "../../schema/sdk-options";
 import { NetworkOrSignerOrProvider, TransactionResult } from "../types";
@@ -36,6 +37,7 @@ import type {
 import ContractPublisherAbi from "@thirdweb-dev/contracts-js/dist/abis/ContractPublisher.json";
 import { ContractPublishedEvent } from "@thirdweb-dev/contracts-js/dist/declarations/src/ContractPublisher";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
+import { AbiParameter } from "abitype";
 import { constants, utils } from "ethers";
 import invariant from "tiny-invariant";
 
@@ -57,7 +59,7 @@ export class ContractPublisher extends RPCConnectionHandler {
     this.publisher = new ContractWrapper<OnChainContractPublisher>(
       network,
       getContractPublisherAddress(),
-      ContractPublisherAbi,
+      AbiSchema.parse(ContractPublisherAbi),
       options,
     );
   }
@@ -75,7 +77,7 @@ export class ContractPublisher extends RPCConnectionHandler {
    */
   public async extractConstructorParams(
     metadataUri: string,
-  ): Promise<ContractParam[]> {
+  ): Promise<readonly AbiParameter[]> {
     return extractConstructorParams(metadataUri, this.storage);
   }
 
@@ -131,7 +133,9 @@ export class ContractPublisher extends RPCConnectionHandler {
    * @internal
    * @param address
    */
-  public async fetchCompilerMetadataFromAddress(address: string) {
+  public async fetchCompilerMetadataFromAddress(
+    address: string,
+  ): Promise<PublishedMetadata> {
     return fetchContractMetadataFromAddress(
       address,
       this.getProvider(),

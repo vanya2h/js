@@ -31,10 +31,10 @@ import { useContract } from "../async/contracts";
  * + const editionDrop = useContract("0x1234...", "edition-drop").contract;
  * ```
  */
-export function useEditionDrop(contractAddress: RequiredParam<string>) {
-  showDeprecationWarning(
-    `useEditionDrop("${contractAddress || "0x..."}")`,
-    `useContract("${contractAddress || "0x..."}", "edition-drop")`,
-  );
-  return useContract(contractAddress, "edition-drop").contract;
-}
+// export function useEditionDrop(contractAddress: RequiredParam<string>) {
+//   showDeprecationWarning(
+//     `useEditionDrop("${contractAddress || "0x..."}")`,
+//     `useContract("${contractAddress || "0x..."}", "edition-drop")`,
+//   );
+//   return useContract(contractAddress, "edition-drop").contract;
+// }

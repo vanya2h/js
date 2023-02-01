@@ -21,5 +21,11 @@ export async function submodules(): Promise<void> {
     "https://github.com/foundry-rs/forge-std.git",
     "lib/forge-std",
   ]);
+  await runCommand("git", [
+    "submodule",
+    "add",
+    "https://github.com/thirdweb-dev/contracts.git",
+    "lib/contracts",
+  ]);
   await runCommand("git", ["submodule", "update", "--init", "--recursive"]);
 }

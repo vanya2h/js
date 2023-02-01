@@ -172,19 +172,33 @@ export async function createContractProject({
 
     console.log("Installing packages. This might take a couple of minutes.");
     console.log();
-
-    await install(root, null, { packageManager, isOnline });
-    console.log();
-
+    
     if (tryGitInit(root)) {
       console.log("Initialized a git repository.");
       console.log();
     }
-
+    
     if (framework === "forge") {
-      await submodules();
+        const isInstalled = await hasForge();
+        if (isInstalled) {
+          const forgeProject = true;
+          await submodules();
+          await install(root, null, { packageManager, isOnline, forgeProject });
+          console.log();
+        } else {
+          console.log(
+            `\n${chalk.yellowBright(
+              `warning`,
+            )} You don't have forge installed on this machine, and will need it to run this project! \n\nYou can install forge by following these instructions:\n${chalk.blueBright(
+              `https://book.getfoundry.sh/getting-started/installation`,
+            )}\n`,
+          );
+      }
+    } else {
+      await install(root, null, { packageManager, isOnline });
+      console.log();
     }
-
+    
     let cdpath: string;
     if (path.join(originalDirectory, projectName) === contractPath) {
       cdpath = projectName;
@@ -219,19 +233,5 @@ export async function createContractProject({
     console.log();
     console.log(chalk.cyan("  cd"), cdpath);
     console.log();
-
-    if (framework === "forge") {
-      const isInstalled = await hasForge();
-
-      if (!isInstalled) {
-        console.log(
-          `\n${chalk.yellowBright(
-            `warning`,
-          )} You don't have forge installed on this machine, and will need it to run this project! \n\nYou can install forge by following these instructions:\n${chalk.blueBright(
-            `https://book.getfoundry.sh/getting-started/installation`,
-          )}\n`,
-        );
-      }
-    }
   }
 }

@@ -16,6 +16,10 @@ interface InstallArgs {
    * Indicate whether the given dependencies are devDependencies.
    */
   devDependencies?: boolean;
+  /**
+   * Determine if forge project
+   */
+  forgeProject?: boolean;
 }
 
 /**
@@ -26,7 +30,7 @@ interface InstallArgs {
 export function install(
   root: string,
   dependencies: string[] | null,
-  { packageManager, isOnline, devDependencies }: InstallArgs,
+  { packageManager, isOnline, devDependencies , forgeProject}: InstallArgs,
 ): Promise<void> {
   /**
    * (p)npm-specific command-line flags.
@@ -41,14 +45,17 @@ export function install(
    */
   return new Promise((resolve, reject) => {
     let args: string[];
-    let command = packageManager;
+    let command = forgeProject ? "forge" : packageManager;
     const useYarn = packageManager === "yarn";
 
     if (dependencies && dependencies.length) {
+      if (forgeProject) {
+        args = ["install"];
+      }
       /**
        * If there are dependencies, run a variation of `{packageManager} add`.
        */
-      if (useYarn) {
+      else if (useYarn) {
         /**
          * Call `yarn add --exact (--offline)? (-D)? ...`.
          */

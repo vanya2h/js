@@ -25,7 +25,7 @@ export async function submodules(): Promise<void> {
     "submodule",
     "add",
     "https://github.com/thirdweb-dev/contracts.git",
-    "lib/contracts",
+    "lib/thirdweb-contracts",
   ]);
   await runCommand("git", ["submodule", "update", "--init", "--recursive"]);
 }

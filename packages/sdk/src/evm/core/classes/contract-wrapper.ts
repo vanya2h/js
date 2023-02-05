@@ -1,6 +1,7 @@
 import {
   TransactionError,
   extractFunctionsFromAbi,
+  fetchContractMetadataFromAddress,
   parseRevertReason,
 } from "../../common";
 import {
@@ -27,6 +28,7 @@ import {
 } from "../types";
 import { RPCConnectionHandler } from "./rpc-connection-handler";
 import ForwarderABI from "@thirdweb-dev/contracts-js/dist/abis/Forwarder.json";
+import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import fetch from "cross-fetch";
 import {
   BaseContract,
@@ -478,6 +480,13 @@ export class ContractWrapper<
     // Parse the revert reason from the error
     const reason = parseRevertReason(error);
 
+    const metadata = await fetchContractMetadataFromAddress(
+      this.readContract.address,
+      this.getProvider(),
+      new ThirdwebStorage(),
+    );
+    const sources = (metadata as any).sources;
+
     return new TransactionError({
       reason,
       from,
@@ -487,6 +496,7 @@ export class ContractWrapper<
       network,
       rpcUrl,
       value,
+      sources,
     });
   }
 

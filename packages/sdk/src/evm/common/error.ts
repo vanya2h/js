@@ -273,6 +273,7 @@ export type TransactionErrorInfo = {
   data?: string;
   rpcUrl?: string;
   value?: BigNumber;
+  sources?: string[];
 };
 
 /**

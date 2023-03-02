@@ -42,7 +42,7 @@ export async function detectExtensions(options: any) {
   }
   compileLoader.succeed("Compilation successful");
 
-  let selectedContracts: ContractPayload[] = [];
+  let selectedContracts: ContractPayload[];
   if (compiledResult.contracts.length === 1) {
     selectedContracts = [compiledResult.contracts[0]];
   } else {

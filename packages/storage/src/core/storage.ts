@@ -172,9 +172,9 @@ export class ThirdwebStorage<T extends UploadOptions = IpfsUploadBatchOptions> {
 
     const isFileArray = data
       .map((item) => isFileOrBuffer(item) || typeof item === "string")
-      .every((item) => !!item);
+      .every((item) => item);
 
-    let uris: string[] = [];
+    let uris: string[];
 
     // If data is an array of files, pass it through to upload directly
     if (isFileArray) {

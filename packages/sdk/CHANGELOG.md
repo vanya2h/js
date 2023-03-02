@@ -346,9 +346,8 @@
 - [#329](https://github.com/thirdweb-dev/js/pull/329) [`5200d5d`](https://github.com/thirdweb-dev/js/commit/5200d5d7e730da58bd4d3e7c222e3c661265f913) Thanks [@adam-maj](https://github.com/adam-maj)! - ### Breaking changes:
 
   1. claim conditions had some changes to support the new drop contracts:
-
-  - `maxClaimablePerTransaction` is now named `maxClaimablePerWallet`
-  - `maxQuantity` is now named `maxClaimable`
+     - `maxClaimablePerTransaction` is now named `maxClaimablePerWallet`
+     - `maxQuantity` is now named `maxClaimable`
 
   2. signature minting now requires a `to` address to be set for security purposees
 
@@ -729,12 +728,12 @@
   ```javascript
   const contract = await sdk.getContract(...)
   // ERC721 contracts
-  const contract.nft?.drop?.claim?.to(...)
-  const contract.nft?.drop?.claim?.conditions.set(...)
+  contract.nft?.drop?.claim?.to(...)
+  contract.nft?.drop?.claim?.conditions.set(...)
   // ERC1155 contracts
-  const contract.edition?.mint?.to(...)
+  contract.edition?.mint?.to(...)
   // ERC20 contracts
-  const contract.token?.burn.tokens(...)
+  contract.token?.burn.tokens(...)
   ```
 
   after:
@@ -742,12 +741,12 @@
   ```javascript
   const contract = await sdk.getContract(...)
   // ERC721 contracts
-  const contract.erc721.claimTo(...)
-  const contract.erc721.claimConditions.set(...)
+  contract.erc721.claimTo(...)
+  contract.erc721.claimConditions.set(...)
   // ERC1155 contracts
-  const contract.erc1155.mintTo(...)
+  contract.erc1155.mintTo(...)
   // ERC20 contracts
-  const contract.erc20.burn(...)
+  contract.erc20.burn(...)
   ```
 
 ### Patch Changes

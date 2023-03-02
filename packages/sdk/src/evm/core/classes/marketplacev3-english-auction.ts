@@ -73,7 +73,7 @@ export class MarketplaceV3EnglishAuctions<
 
   /**
    * Get the total number of english auctions
-   * 
+   *
    * @returns Returns the total number of auctions created.
    * @public
    *
@@ -109,7 +109,7 @@ export class MarketplaceV3EnglishAuctions<
       throw new Error(`No auctions exist on the contract.`);
     }
 
-    let rawAuctions: IEnglishAuctions.AuctionStructOutput[] = [];
+    let rawAuctions: IEnglishAuctions.AuctionStructOutput[];
     let batches = await getAllInBatches(
       start,
       end,
@@ -148,7 +148,7 @@ export class MarketplaceV3EnglishAuctions<
       throw new Error(`No auctions exist on the contract.`);
     }
 
-    let rawAuctions: IEnglishAuctions.AuctionStructOutput[] = [];
+    let rawAuctions: IEnglishAuctions.AuctionStructOutput[];
     let batches = await getAllInBatches(
       start,
       end,
@@ -218,7 +218,7 @@ export class MarketplaceV3EnglishAuctions<
 
   /**
    * Check if a bid is or will be a winning bid
-   * 
+   *
    * @example
    * ```javascript
    * const auctionId = 0;
@@ -661,7 +661,7 @@ export class MarketplaceV3EnglishAuctions<
 
   /**
    * Get the buffer for an english auction
-   *  
+   *
    * @example
    * ```javascript
    * // The ID of the auction you want to get the buffer for
@@ -679,14 +679,14 @@ export class MarketplaceV3EnglishAuctions<
 
   /**
    * Get the minimum next bid for an english auction
-   * 
+   *
    * @example
    * ```javascript
    * // The ID of the auction you want to get the minimum next bid for
    * const auctionId = "0";
    * const minimumNextBid = await contract.englishAuctions.getMinimumNextBid(auctionId);
    * ```
-   * 
+   *
    * @returns the minimum bid a user can place to outbid the previous highest bid
    * @param auctionId - id of the auction
    * @twfeature EnglishAuctions

@@ -94,7 +94,7 @@ export async function processProject(
     process.exit(1);
   }
 
-  let selectedContracts: ContractPayload[] = [];
+  let selectedContracts: ContractPayload[];
   if (compiledResult.contracts.length === 1) {
     selectedContracts = [compiledResult.contracts[0]];
     info(

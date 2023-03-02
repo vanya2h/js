@@ -122,7 +122,7 @@ export class MarketplaceV3DirectListings<TContract extends DirectListingsLogic>
       throw new Error(`No listings exist on the contract.`);
     }
 
-    let rawListings: IDirectListings.ListingStructOutput[] = [];
+    let rawListings: IDirectListings.ListingStructOutput[];
     let batches = await getAllInBatches(
       start,
       end,
@@ -163,7 +163,7 @@ export class MarketplaceV3DirectListings<TContract extends DirectListingsLogic>
       throw new Error(`No listings exist on the contract.`);
     }
 
-    let rawListings: IDirectListings.ListingStructOutput[] = [];
+    let rawListings: IDirectListings.ListingStructOutput[];
     let batches = await getAllInBatches(
       start,
       end,

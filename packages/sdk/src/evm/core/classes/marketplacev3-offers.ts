@@ -68,7 +68,7 @@ export class MarketplaceV3Offers<TContract extends OffersLogic>
 
   /**
    * Get the total number of offers
-   * 
+   *
    * @returns Returns the total number of offers created.
    * @public
    *
@@ -104,7 +104,7 @@ export class MarketplaceV3Offers<TContract extends OffersLogic>
       throw new Error(`No offers exist on the contract.`);
     }
 
-    let rawOffers: IOffers.OfferStructOutput[] = [];
+    let rawOffers: IOffers.OfferStructOutput[];
     let batches = await getAllInBatches(
       start,
       end,
@@ -141,7 +141,7 @@ export class MarketplaceV3Offers<TContract extends OffersLogic>
       throw new Error(`No offers exist on the contract.`);
     }
 
-    let rawOffers: IOffers.OfferStructOutput[] = [];
+    let rawOffers: IOffers.OfferStructOutput[];
     let batches = await getAllInBatches(
       start,
       end,

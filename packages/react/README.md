@@ -311,7 +311,7 @@ const KitchenSinkExample = () => {
 ### Main hooks
 
 | Hook                                                                                 | Description                                                                |
-| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+|--------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
 | [`useSDK`](https://portal.thirdweb.com/react/react.usesdk)                           | Access the instance of the thirdweb SDK created by the ThirdwebProvider.   |
 | [`useContract`](https://portal.thirdweb.com/react/react.usecontract)                 | Use this resolve a contract address to a smart contract instance.          |
 | [`useContractWrite`](https://portal.thirdweb.com/react/react.usecontractwrite)       | Use this to get data from a contract read-function call.                   |
@@ -322,7 +322,7 @@ const KitchenSinkExample = () => {
 ### Wallet connection
 
 | Hook                                                                             | Description                                                 |
-| -------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+|----------------------------------------------------------------------------------|-------------------------------------------------------------|
 | [`useAddress`](https://portal.thirdweb.com/react/react.useaddress)               | Hook for accessing the address of the connected wallet.     |
 | [`useMetamask`](https://portal.thirdweb.com/react/react.usemetamask)             | Hook for connecting to a Metamask wallet.                   |
 | [`useWalletConnect`](https://portal.thirdweb.com/react/react.usewalletconnect)   | Hook for connecting to a mobile wallet with Wallet Connect. |
@@ -334,7 +334,7 @@ const KitchenSinkExample = () => {
 ### Network connection
 
 | Hook                                                                               | Description                                                                                                                                  |
-| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
 | [`useChainId`](https://portal.thirdweb.com/react/react.usechainid)                 | Hook for accessing the chain ID of the network the current wallet is connected to                                                            |
 | [`useNetwork`](https://portal.thirdweb.com/react/react.usenetwork)                 | Hook for getting metadata about the network the current wallet is connected to and switching networks.                                       |
 | [`useNetworkMismatch`](https://portal.thirdweb.com/react/react.usenetworkmismatch) | Hook for checking whether the connected wallet is on the correct network specified by the desiredChainId passed to the <ThirdwebProvider />. |
@@ -342,7 +342,7 @@ const KitchenSinkExample = () => {
 ### NFT
 
 | Hook                                                                                             | Description                                                                         |
-| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
 | [`useNFT`](https://portal.thirdweb.com/react/react.usenft)                                       | Use this to get an individual NFT token of your NFTContract.                        |
 | [`useNFTs`](https://portal.thirdweb.com/react/react.usenfts)                                     | Use this to get a list of NFT tokens of your NFTContract.                           |
 | [`useTotalCirculatingSupply`](https://portal.thirdweb.com/react/react.usetotalcirculatingsupply) | Use this to get a the total (minted) supply of your NFTContract.                    |
@@ -358,7 +358,7 @@ const KitchenSinkExample = () => {
 ### Token
 
 | Hook                                                                                     | Description                                                        |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+|------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
 | [`useTokenSupply`](https://portal.thirdweb.com/react/react.usetokensupply)               | Use this to get a the total supply of your contract.               |
 | [`useTokenBalance`](https://portal.thirdweb.com/react/react.usetokenbalance)             | Use this to get the balance of your contract for a given address.  |
 | [`useTokenDecimals`](https://portal.thirdweb.com/react/react.usetokendecimals)           | Use this to get the decimals of your contract for a given address. |
@@ -371,7 +371,7 @@ const KitchenSinkExample = () => {
 ### Marketplace
 
 | Hook                                                                                         | Description                                                                               |
-| -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+|----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | [`useListing`](https://portal.thirdweb.com/react/react.uselisting)                           | Use this to get a specific listing from the marketplace.                                  |
 | [`useListings`](https://portal.thirdweb.com/react/react.uselistings)                         | Use this to get a list all listings from your marketplace contract.                       |
 | [`useListingsCount`](https://portal.thirdweb.com/react/react.uselistingscount)               | Use this to get a count of all listings on your marketplace contract.                     |
@@ -388,7 +388,7 @@ const KitchenSinkExample = () => {
 ### Permissions Controls
 
 | Hook                                                                                   | Description                                                                     |
-| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | [`useAllRoleMembers`](https://portal.thirdweb.com/react/react.useallrolemembers)       | Use this to get the roles of all members.                                       |
 | [`useRoleMembers`](https://portal.thirdweb.com/react/react.userolemembers)             | Use this to get the members of a role.                                          |
 | [`useIsAddressRole`](https://portal.thirdweb.com/react/react.useisaddressrole)         | Use this to check if a WalletAddress is a member of a role.                     |
@@ -399,7 +399,7 @@ const KitchenSinkExample = () => {
 ### Drop
 
 | Hook                                                                                           | Description                                                                          |
-| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | [`useUnclaimedNFTs`](https://portal.thirdweb.com/react/react.useunclaimednfts)                 | Use this to get a list of unclaimed NFT tokens of your ERC721 Drop contract.         |
 | [`useClaimedNFTs`](https://portal.thirdweb.com/react/react.useclaimednfts)                     | Use this to get a list of claimed (minted) NFT tokens of your ERC721 Drop contract.. |
 | [`useUnclaimedNFTSupply`](https://portal.thirdweb.com/react/react.useunclaimednftsupply)       | Use this to get the total unclaimed NFT supply of your ERC721 Drop contract.         |
@@ -413,7 +413,7 @@ const KitchenSinkExample = () => {
 ### Claim Conditions
 
 | Hook                                                                                                   | Description                                                                                              |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+|--------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | [`useActiveClaimCondition`](https://portal.thirdweb.com/react/react.useactiveclaimcondition)           | Use this to get the active claim condition for ERC20, ERC721 or ERC1155 based contracts.                 |
 | [`useClaimConditions`](https://portal.thirdweb.com/react/react.useclaimconditions)                     | Use this to get all claim conditions for ERC20, ERC721 or ERC1155 based contracts.                       |
 | [`useClaimIneligibilityReasons`](https://portal.thirdweb.com/react/react.useclaimineligibilityreasons) | Use this to check for reasons that prevent claiming for either ERC20, ERC721 or ERC1155 based contracts. |

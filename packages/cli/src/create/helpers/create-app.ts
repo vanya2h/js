@@ -188,12 +188,8 @@ export async function createApp({
     console.log();
   }
 
-  let cdpath: string;
-  if (path.join(originalDirectory, appName) === appPath) {
-    cdpath = appName;
-  } else {
-    cdpath = appPath;
-  }
+  const cdpath =
+    path.join(originalDirectory, appName) === appPath ? appName : appPath;
 
   let startOrDev: string | undefined;
   if (framework && (framework === "next" || framework === "vite")) {

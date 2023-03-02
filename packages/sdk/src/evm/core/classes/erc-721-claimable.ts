@@ -51,16 +51,16 @@ export class Erc721Claimable implements DetectableFeature {
     options?: ClaimOptions,
   ): Promise<Transaction> {
     // TODO: Transaction Sequence Pattern
-    let overrides: CallOverrides = {};
-    if (options && options.pricePerToken) {
-      overrides = await calculateClaimCost(
-        this.contractWrapper,
-        options.pricePerToken,
-        quantity,
-        options.currencyAddress,
-        options.checkERC20Allowance,
-      );
-    }
+    let overrides: CallOverrides =
+      options && options.pricePerToken
+        ? await calculateClaimCost(
+            this.contractWrapper,
+            options.pricePerToken,
+            quantity,
+            options.currencyAddress,
+            options.checkERC20Allowance,
+          )
+        : {};
     return Transaction.fromContractWrapper({
       contractWrapper: this.contractWrapper,
       method: "claim",

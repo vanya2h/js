@@ -42,16 +42,16 @@ export class ERC1155Claimable implements DetectableFeature {
     quantity: BigNumberish,
     options?: ClaimOptions,
   ): Promise<Transaction> {
-    let overrides: CallOverrides = {};
-    if (options && options.pricePerToken) {
-      overrides = await calculateClaimCost(
-        this.contractWrapper,
-        options.pricePerToken,
-        quantity,
-        options.currencyAddress,
-        options.checkERC20Allowance,
-      );
-    }
+    const overrides: CallOverrides =
+      options && options.pricePerToken
+        ? await calculateClaimCost(
+            this.contractWrapper,
+            options.pricePerToken,
+            quantity,
+            options.currencyAddress,
+            options.checkERC20Allowance,
+          )
+        : {};
     return Transaction.fromContractWrapper({
       contractWrapper: this.contractWrapper,
       method: "claim",

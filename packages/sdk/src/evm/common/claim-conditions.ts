@@ -580,7 +580,7 @@ export async function calculateClaimCost(
   currencyAddress?: string,
   checkERC20Allowance?: boolean,
 ): Promise<Promise<CallOverrides>> {
-  let overrides: CallOverrides = {};
+  const overrides: CallOverrides = {};
   const currency = currencyAddress || NATIVE_TOKEN_ADDRESS;
   const normalizedPrice = await normalizePriceValue(
     contractWrapper.getProvider(),
@@ -590,9 +590,7 @@ export async function calculateClaimCost(
   const totalCost = normalizedPrice.mul(quantity);
   if (totalCost.gt(0)) {
     if (currency === NATIVE_TOKEN_ADDRESS) {
-      overrides = {
-        value: totalCost,
-      };
+      overrides.value = totalCost;
     } else if (currency !== NATIVE_TOKEN_ADDRESS && checkERC20Allowance) {
       await approveErc20Allowance(
         contractWrapper,

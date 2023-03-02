@@ -26,7 +26,7 @@ const iconRoute =
 /** @type {Record<number, Partial<Chain>>} */
 let overrides = {};
 
-// get all overides by reading the overrides directory and importing them
+// get all overrides by reading the overrides directory and importing them
 const overridesDir = path.join(process.cwd(), "./data/overrides");
 const overridesFiles = fs.readdirSync(overridesDir);
 for (const file of overridesFiles) {

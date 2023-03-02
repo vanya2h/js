@@ -349,7 +349,8 @@ export async function resolveContractUriFromAddress(
     // ignore
   }
   // TODO support other types of proxies
-  return await extractIPFSHashFromBytecode(bytecode);
+  const hash = await extractIPFSHashFromBytecode(bytecode);
+  return hash;
 }
 
 /**

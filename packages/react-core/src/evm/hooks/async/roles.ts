@@ -135,7 +135,7 @@ export function useIsAddressRole<TContract extends ContractWithRoles>(
   );
 
   // if the contract does not have roles then everything is allowed === true
-  if (contractHasRoles === false) {
+  if (!contractHasRoles) {
     return true;
   }
 

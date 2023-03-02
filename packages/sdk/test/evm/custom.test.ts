@@ -237,7 +237,7 @@ describe("Custom Contracts", async () => {
     invariant(c, "Contract undefined");
     invariant(c.metadata, "Metadata undefined");
     try {
-      c.roles.get("admin");
+      await c.roles.get("admin");
     } catch (e) {
       expectError(e, "contract does not implement the 'Permissions' Extension");
     }

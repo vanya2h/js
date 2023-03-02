@@ -386,10 +386,7 @@ export class NFTCollection {
     // need to coerce amount to number always (to make the Array(<number>) work)
     amount = typeof amount === "string" ? parseInt(amount) : amount;
     // ensure that whatever got passed actually is a number now
-    invariant(
-      isNaN(amount) === false,
-      "amount must be possible to convert to a number",
-    );
+    invariant(!isNaN(amount), "amount must be possible to convert to a number");
 
     // Better to use metaplex functions directly then our supplyOf function for types/consistency
     const originalEditionAccount = await this.metaplex

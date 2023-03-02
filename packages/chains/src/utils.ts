@@ -28,21 +28,14 @@ export function getChainRPCs(
     ...options,
   };
 
-  const modeChains = chain.rpc.filter((rpc) => {
-    if (rpc.startsWith("http") && mode === "http") {
-      return true;
-    }
-    if (rpc.startsWith("ws") && mode === "ws") {
-      return true;
-    }
-
-    return false;
-  });
+  const modeChains = chain.rpc.filter(
+    (rpc) =>
+      (rpc.startsWith("http") && mode === "http") ||
+      (rpc.startsWith("ws") && mode === "ws"),
+  );
 
   const thirdwebRPC = modeChains
-    .filter((rpc) => {
-      return rpc.includes("${THIRDWEB_API_KEY}") && thirdwebApiKey;
-    })
+    .filter((rpc) => rpc.includes("${THIRDWEB_API_KEY}") && thirdwebApiKey)
     .map((rpc) =>
       thirdwebApiKey ? rpc.replace("${THIRDWEB_API_KEY}", thirdwebApiKey) : rpc,
     );

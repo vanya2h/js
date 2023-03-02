@@ -24,7 +24,7 @@ import type {
   PrebuiltContractType,
   ValidContractInstance,
 } from "./types";
-import { UserWallet } from "./wallet/user-wallet";
+import { UserWallet } from "./wallet";
 import { Chain, defaultChains } from "@thirdweb-dev/chains";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import type { EVMWallet } from "@thirdweb-dev/wallets";

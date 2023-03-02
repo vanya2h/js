@@ -1,7 +1,6 @@
 import { NetworkInput, TransactionResult } from "..";
-import { getMultichainRegistryAddress } from "../../constants/addresses";
-import { PublishedMetadata } from "../../schema/contracts/custom";
-import { SDKOptions } from "../../schema/sdk-options";
+import { getMultichainRegistryAddress } from "../../constants";
+import { PublishedMetadata, SDKOptions } from "../../schema";
 import { AddContractInput, ContractInput, DeployedContract } from "../../types";
 import { ContractWrapper } from "./contract-wrapper";
 import type {

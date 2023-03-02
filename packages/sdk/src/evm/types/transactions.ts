@@ -1,6 +1,6 @@
+import { TransactionResult } from "../core";
 import { ContractWrapper } from "../core/classes/contract-wrapper";
-import { TransactionResult } from "../core/types";
-import { SDKOptionsOutput } from "../schema/sdk-options";
+import { SDKOptionsOutput } from "../schema";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { ethers } from "ethers";
 

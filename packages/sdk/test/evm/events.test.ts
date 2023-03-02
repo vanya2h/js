@@ -4,7 +4,7 @@ import {
   NFTCollectionInitializer,
   NFTDrop,
   NFTDropInitializer,
-} from "../../src/evm";
+} from "../../src";
 import { sdk, signers } from "./before-setup";
 import { AddressZero } from "@ethersproject/constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";

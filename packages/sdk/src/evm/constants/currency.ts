@@ -1,4 +1,4 @@
-import { NativeToken } from "../types/currency";
+import { NativeToken } from "../types";
 import { ChainId, getSupportedChains, SUPPORTED_CHAIN_ID } from "./chains";
 import { ethers } from "ethers";
 

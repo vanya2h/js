@@ -12,27 +12,26 @@ import {
 } from "../constants/thirdweb-features";
 import {
   ContractEncoder,
+  ContractAppURI,
+  ContractEvents,
+  ContractInterceptor,
   ContractOwner,
+  ContractMetadata,
+  ContractPlatformFee,
+  ContractPublishedMetadata,
   NetworkInput,
+  ContractRoles,
+  ContractRoyalty,
+  ContractPrimarySale,
+  Erc20,
+  Erc721,
+  Erc1155,
   Transaction,
+  GasCostEstimator,
 } from "../core";
-import { ContractAppURI } from "../core/classes/contract-appuri";
-import { ContractEvents } from "../core/classes/contract-events";
-import { ContractInterceptor } from "../core/classes/contract-interceptor";
-import { ContractMetadata } from "../core/classes/contract-metadata";
-import { ContractPlatformFee } from "../core/classes/contract-platform-fee";
-import { ContractPublishedMetadata } from "../core/classes/contract-published-metadata";
-import { ContractRoles } from "../core/classes/contract-roles";
-import { ContractRoyalty } from "../core/classes/contract-royalty";
-import { ContractPrimarySale } from "../core/classes/contract-sales";
 import { ContractWrapper } from "../core/classes/contract-wrapper";
-import { Erc20 } from "../core/classes/erc-20";
-import { Erc721 } from "../core/classes/erc-721";
-import { Erc1155 } from "../core/classes/erc-1155";
-import { GasCostEstimator } from "../core/classes/gas-cost-estimator";
 import { UpdateableNetwork } from "../core/interfaces/contract";
-import { CustomContractSchema } from "../schema/contracts/custom";
-import { SDKOptions } from "../schema/sdk-options";
+import { CustomContractSchema, SDKOptions } from "../schema";
 import { BaseERC1155, BaseERC20, BaseERC721 } from "../types/eips";
 import type {
   AppURI,

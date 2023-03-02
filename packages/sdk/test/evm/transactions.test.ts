@@ -1,4 +1,4 @@
-import { ThirdwebSDK } from "../../src/evm";
+import { ThirdwebSDK } from "../../src";
 import { sdk, signers } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";

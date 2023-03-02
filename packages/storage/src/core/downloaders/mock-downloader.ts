@@ -1,9 +1,5 @@
-import { DEFAULT_GATEWAY_URLS } from "../../common/urls";
-import {
-  GatewayUrls,
-  IStorageDownloader,
-  MemoryStorage,
-} from "../../types/download";
+import { DEFAULT_GATEWAY_URLS } from "../../common";
+import { GatewayUrls, IStorageDownloader, MemoryStorage } from "../../types";
 
 /**
  * @internal

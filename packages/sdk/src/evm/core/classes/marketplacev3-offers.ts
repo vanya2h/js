@@ -13,8 +13,7 @@ import {
   OfferInputParams,
   OfferInputParamsSchema,
 } from "../../schema/marketplacev3/offer";
-import { MarketplaceFilter } from "../../types";
-import { OfferV3 } from "../../types/marketplacev3";
+import { MarketplaceFilter, OfferV3 } from "../../types";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResult, TransactionResultWithId } from "../types";
 import { ContractEncoder } from "./contract-encoder";

@@ -1,5 +1,5 @@
 import { NFTMetadata } from "../../../core/schema/nft";
-import { ListingType } from "../../enums/marketplace";
+import { ListingType } from "../../enums";
 import { CurrencyValue } from "../currency";
 import { BigNumber, BigNumberish } from "ethers";
 

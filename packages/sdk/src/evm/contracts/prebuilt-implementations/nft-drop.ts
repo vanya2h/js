@@ -6,29 +6,30 @@ import { NFT, NFTMetadata, NFTMetadataOrUri } from "../../../core/schema/nft";
 import { getRoleHash } from "../../common";
 import { buildTransactionFunction } from "../../common/transactions";
 import { FEATURE_NFT_REVEALABLE } from "../../constants/erc721-features";
-import { ContractEncoder } from "../../core/classes/contract-encoder";
-import { ContractEvents } from "../../core/classes/contract-events";
-import { ContractInterceptor } from "../../core/classes/contract-interceptor";
-import { ContractMetadata } from "../../core/classes/contract-metadata";
-import { ContractOwner } from "../../core/classes/contract-owner";
-import { ContractPlatformFee } from "../../core/classes/contract-platform-fee";
-import { ContractRoles } from "../../core/classes/contract-roles";
-import { ContractRoyalty } from "../../core/classes/contract-royalty";
-import { ContractPrimarySale } from "../../core/classes/contract-sales";
+import {
+  ContractEncoder,
+  ContractEvents,
+  ContractInterceptor,
+  ContractMetadata,
+  ContractOwner,
+  ContractPlatformFee,
+  ContractRoles,
+  ContractRoyalty,
+  ContractPrimarySale,
+  DelayedReveal,
+  DropClaimConditions,
+  Erc721,
+  StandardErc721,
+  GasCostEstimator,
+  Transaction,
+  NetworkInput,
+  TransactionResultWithId,
+} from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { DelayedReveal } from "../../core/classes/delayed-reveal";
-import { DropClaimConditions } from "../../core/classes/drop-claim-conditions";
-import { Erc721 } from "../../core/classes/erc-721";
-import { StandardErc721 } from "../../core/classes/erc-721-standard";
-import { GasCostEstimator } from "../../core/classes/gas-cost-estimator";
-import { Transaction } from "../../core/classes/transactions";
-import { NetworkInput, TransactionResultWithId } from "../../core/types";
 import { PaperCheckout } from "../../integrations/thirdweb-checkout";
-import { Abi } from "../../schema/contracts/custom";
-import { DropErc721ContractSchema } from "../../schema/contracts/drop-erc721";
-import { SDKOptions } from "../../schema/sdk-options";
+import { Abi, DropErc721ContractSchema, SDKOptions } from "../../schema";
+import { UploadProgressEvent } from "../../types";
 import { PrebuiltNFTDrop } from "../../types/eips";
-import { UploadProgressEvent } from "../../types/events";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { BigNumber, BigNumberish, CallOverrides, constants } from "ethers";
 

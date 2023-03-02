@@ -1,6 +1,6 @@
 import { buildTransactionFunction } from "../../common/transactions";
 import { FEATURE_TOKEN_BURNABLE } from "../../constants/erc20-features";
-import { Amount } from "../../types/currency";
+import { Amount } from "../../types";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { ContractWrapper } from "./contract-wrapper";
 import { Erc20 } from "./erc-20";

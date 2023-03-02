@@ -1,6 +1,6 @@
 import { ChainId } from "../constants";
 import { ContractWrapper } from "../core/classes/contract-wrapper";
-import { SignedPayload721WithQuantitySignature } from "../schema/contracts/common/signature";
+import { SignedPayload721WithQuantitySignature } from "../schema";
 import { PrebuiltEditionDrop, PrebuiltNFTDrop } from "../types/eips";
 import { SignatureDrop } from "@thirdweb-dev/contracts-js/dist/declarations/src/SignatureDrop";
 // import fetch from "cross-fetch";

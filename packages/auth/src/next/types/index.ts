@@ -1,5 +1,4 @@
-import { ThirdwebAuth } from "../../core";
-import { Json, LoginPayloadOutputSchema, User } from "../../core/schema";
+import { ThirdwebAuth, Json, LoginPayloadOutputSchema, User } from "../../core";
 import { GenericAuthWallet } from "@thirdweb-dev/wallets";
 import { GetServerSidePropsContext, NextApiRequest } from "next";
 import { NextRequest } from "next/server";

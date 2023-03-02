@@ -15,7 +15,7 @@ import {
   Token,
   TokenInitializer,
   WrongListingTypeError,
-} from "../../src/evm";
+} from "../../src";
 import { isWinningBid } from "../../src/evm/common/marketplace";
 import {
   expectError,

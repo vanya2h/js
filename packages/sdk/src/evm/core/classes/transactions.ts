@@ -1,20 +1,20 @@
-import { TransactionError, parseRevertReason } from "../../common/error";
-import { getPolygonGasPriorityFee } from "../../common/gas-price";
 import {
   fetchContractMetadataFromAddress,
   fetchSourceFilesFromMetadata,
-} from "../../common/metadata-resolver";
+  TransactionError,
+  parseRevertReason,
+} from "../../common";
+import { getPolygonGasPriorityFee } from "../../common/gas-price";
 import { defaultGaslessSendFunction } from "../../common/transactions";
 import { isBrowser } from "../../common/utils";
-import { ChainId } from "../../constants/chains";
-import { ContractSource } from "../../schema/contracts/custom";
-import { SDKOptionsOutput } from "../../schema/sdk-options";
+import { ChainId } from "../../constants";
+import { ContractSource, SDKOptionsOutput } from "../../schema";
 import {
   ParseTransactionReceipt,
   TransactionOptionsWithContract,
   TransactionOptionsWithContractInfo,
   TransactionOptionsWithContractWrapper,
-} from "../../types/transactions";
+} from "../../types";
 import { GaslessTransaction, TransactionResult } from "../types";
 import { ConnectionInfo } from "@ethersproject/web";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";

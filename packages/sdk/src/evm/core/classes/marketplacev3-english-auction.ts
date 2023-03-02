@@ -14,9 +14,13 @@ import {
   EnglishAuctionInputParams,
   EnglishAuctionInputParamsSchema,
 } from "../../schema/marketplacev3/english-auctions";
-import { MarketplaceFilter } from "../../types";
-import { CurrencyValue, Price } from "../../types/currency";
-import { EnglishAuction, Bid } from "../../types/marketplacev3";
+import {
+  MarketplaceFilter,
+  CurrencyValue,
+  Price,
+  EnglishAuction,
+  Bid,
+} from "../../types";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResult, TransactionResultWithId } from "../types";
 import { ContractEncoder } from "./contract-encoder";

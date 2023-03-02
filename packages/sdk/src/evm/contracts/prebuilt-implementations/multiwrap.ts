@@ -6,21 +6,21 @@ import {
 } from "../../common/currency";
 import { isTokenApprovedForTransfer } from "../../common/marketplace";
 import { uploadOrExtractURI } from "../../common/nft";
-import { ContractEncoder } from "../../core/classes/contract-encoder";
-import { ContractEvents } from "../../core/classes/contract-events";
-import { ContractMetadata } from "../../core/classes/contract-metadata";
-import { ContractOwner } from "../../core/classes/contract-owner";
-import { ContractRoles } from "../../core/classes/contract-roles";
-import { ContractRoyalty } from "../../core/classes/contract-royalty";
-import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { StandardErc721 } from "../../core/classes/erc-721-standard";
-import { GasCostEstimator } from "../../core/classes/gas-cost-estimator";
-import { Transaction } from "../../core/classes/transactions";
 import {
+  ContractEncoder,
+  ContractEvents,
+  ContractMetadata,
+  ContractOwner,
+  ContractRoles,
+  ContractRoyalty,
+  StandardErc721,
+  GasCostEstimator,
+  Transaction,
   NetworkInput,
   TransactionResult,
   TransactionResultWithId,
-} from "../../core/types";
+} from "../../core";
+import { ContractWrapper } from "../../core/classes/contract-wrapper";
 import { Abi, SDKOptions } from "../../schema";
 import { MultiwrapContractSchema } from "../../schema/contracts/multiwrap";
 import {
@@ -29,7 +29,7 @@ import {
   ERC721Wrappable,
   TokensToWrap,
   WrappedTokens,
-} from "../../types/multiwrap";
+} from "../../types";
 import type { Multiwrap as MultiwrapContract } from "@thirdweb-dev/contracts-js";
 import {
   ITokenBundle,

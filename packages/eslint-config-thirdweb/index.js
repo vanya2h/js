@@ -19,6 +19,7 @@ module.exports = {
     "import/newline-after-import": "error",
     "import/no-cycle": "warn",
     "import/no-useless-path-segments": "error",
+    "import/no-duplicates": "error",
 
     //eslint
     curly: "error",

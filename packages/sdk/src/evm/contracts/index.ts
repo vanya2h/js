@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { ALL_ROLES, fetchAbiFromAddress } from "../common";
 import { getPrebuiltInfo } from "../common/legacy";
-import { fetchAbiFromAddress } from "../common/metadata-resolver";
 import { getCompositePluginABI } from "../common/plugin";
-import { ALL_ROLES } from "../common/role";
+import type { ContractType, NetworkInput, PrebuiltContractType } from "../core";
 import { getSignerAndProvider } from "../core/classes/rpc-connection-handler";
-import type {
-  ContractType,
-  NetworkInput,
-  PrebuiltContractType,
-} from "../core/types";
 import {
   DropErc1155ContractSchema,
   DropErc721ContractSchema,
@@ -20,14 +15,14 @@ import {
   TokenErc20ContractSchema,
   TokenErc721ContractSchema,
   VoteContractSchema,
+  Abi,
 } from "../schema";
-import { Abi } from "../schema/contracts/custom";
 import { DropErc20ContractSchema } from "../schema/contracts/drop-erc20";
 import { MultiwrapContractSchema } from "../schema/contracts/multiwrap";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { ethers } from "ethers";
 
-type InitalizeParams = [
+type InitializeParams = [
   network: NetworkInput,
   address: string,
   storage: ThirdwebStorage,
@@ -40,7 +35,7 @@ export const EditionDropInitializer = {
   schema: DropErc1155ContractSchema,
   roles: ["admin", "minter", "transfer"] as const,
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -86,7 +81,7 @@ export const EditionInitializer = {
   schema: TokenErc1155ContractSchema,
   roles: ["admin", "minter", "transfer"] as const,
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -126,7 +121,7 @@ export const MarketplaceInitializer = {
   schema: MarketplaceContractSchema,
   roles: ["admin", "lister", "asset"] as const,
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -167,7 +162,7 @@ export const MarketplaceV3Initializer = {
   schema: MarketplaceContractSchema,
   roles: ["admin", "lister", "asset"] as const,
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -215,7 +210,7 @@ export const MultiwrapInitializer = {
   schema: MultiwrapContractSchema,
   roles: ["admin", "transfer", "minter", "unwrap", "asset"] as const,
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -255,7 +250,7 @@ export const NFTCollectionInitializer = {
   roles: ["admin", "minter", "transfer"] as const,
 
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -295,7 +290,7 @@ export const NFTDropInitializer = {
   schema: DropErc721ContractSchema,
   roles: ["admin", "minter", "transfer"] as const,
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -342,7 +337,7 @@ export const PackInitializer = {
   roles: ["admin", "minter", "asset", "transfer"] as const,
 
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -382,7 +377,7 @@ export const SignatureDropInitializer = {
   roles: ["admin", "minter", "transfer"] as const,
 
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -432,7 +427,7 @@ export const SplitInitializer = {
   roles: ["admin"] as const,
 
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -472,7 +467,7 @@ export const TokenDropInitializer = {
   roles: ["admin", "transfer"] as const,
 
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -515,7 +510,7 @@ export const TokenInitializer = {
   schema: TokenErc20ContractSchema,
   roles: ["admin", "minter", "transfer"] as const,
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([
@@ -556,7 +551,7 @@ export const VoteInitializer = {
   roles: [] as const,
 
   initialize: async (
-    ...[network, address, storage, options]: InitalizeParams
+    ...[network, address, storage, options]: InitializeParams
   ) => {
     const [, provider] = getSignerAndProvider(network, options);
     const [abi, contract, _network] = await Promise.all([

@@ -18,7 +18,7 @@ import {
   PreDeployMetadata,
   PreDeployMetadataFetched,
   PreDeployMetadataFetchedSchema,
-} from "../schema/contracts/custom";
+} from "../schema";
 import { ExtensionNotImplementedError } from "./error";
 import { fetchContractMetadata } from "./metadata-resolver";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";

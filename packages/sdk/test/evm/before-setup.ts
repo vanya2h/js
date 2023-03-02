@@ -18,7 +18,7 @@ import {
   TokenDropInitializer,
   TokenInitializer,
   VoteInitializer,
-} from "../../src/evm";
+} from "../../src";
 import { Plugin } from "../../src/evm/types/plugins";
 import { MockStorage } from "./mock/MockStorage";
 import weth from "./mock/WETH9.json";

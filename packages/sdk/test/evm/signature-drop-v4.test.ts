@@ -1,4 +1,3 @@
-import { NFTMetadataInput } from "../../src/core/schema/nft";
 import {
   NATIVE_TOKEN_ADDRESS,
   PayloadToSign721withQuantity,
@@ -7,7 +6,8 @@ import {
   SignedPayload721WithQuantitySignature,
   Token,
   TokenInitializer,
-} from "../../src/evm";
+} from "../../src";
+import { NFTMetadataInput } from "../../src/core/schema/nft";
 import { expectError, sdk, signers, storage } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { assert, expect } from "chai";

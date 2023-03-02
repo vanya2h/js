@@ -4,7 +4,7 @@ import {
   EditionMetadataInput,
   Pack,
   PackInitializer,
-} from "../../src/evm";
+} from "../../src";
 import { sdk, signers } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { assert } from "chai";

@@ -1,4 +1,4 @@
-import { resolveContractUriFromAddress } from "../../src/evm";
+import { resolveContractUriFromAddress } from "../../src";
 import { defaultProvider } from "./before-setup";
 import { mockUploadWithCID } from "./mock/MockStorage";
 import { ContractInterface, ethers } from "ethers";

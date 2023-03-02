@@ -1,5 +1,5 @@
 import { TransactionResult } from "..";
-import { SDKOptions } from "../../schema/sdk-options";
+import { SDKOptions } from "../../schema";
 import { NetworkInput } from "../types";
 import { ContractWrapper } from "./contract-wrapper";
 import type { TWRegistry } from "@thirdweb-dev/contracts-js";

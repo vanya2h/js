@@ -1,15 +1,12 @@
-import {
-  CONTRACT_ADDRESSES,
-  getContractAddressByChainId,
-} from "../constants/addresses";
-import { Transaction } from "../core/classes/transactions";
+import { CONTRACT_ADDRESSES, getContractAddressByChainId } from "../constants";
 import {
   ForwardRequestMessage,
   GaslessTransaction,
   PermitRequestMessage,
+  Transaction,
   TransactionResult,
-} from "../core/types";
-import { SDKOptionsOutput } from "../schema/sdk-options";
+} from "../core";
+import { SDKOptionsOutput } from "../schema";
 import {
   BiconomyForwarderAbi,
   ChainAwareForwardRequest,

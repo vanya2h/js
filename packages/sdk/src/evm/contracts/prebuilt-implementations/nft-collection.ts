@@ -1,25 +1,25 @@
 import { NFT, NFTMetadataOrUri } from "../../../core/schema/nft";
 import { getRoleHash } from "../../common";
 import { buildTransactionFunction } from "../../common/transactions";
-import { ContractEncoder } from "../../core/classes/contract-encoder";
-import { ContractEvents } from "../../core/classes/contract-events";
-import { ContractInterceptor } from "../../core/classes/contract-interceptor";
-import { ContractMetadata } from "../../core/classes/contract-metadata";
-import { ContractOwner } from "../../core/classes/contract-owner";
-import { ContractPlatformFee } from "../../core/classes/contract-platform-fee";
-import { ContractRoles } from "../../core/classes/contract-roles";
-import { ContractRoyalty } from "../../core/classes/contract-royalty";
-import { ContractPrimarySale } from "../../core/classes/contract-sales";
+import {
+  ContractEncoder,
+  ContractEvents,
+  ContractInterceptor,
+  ContractMetadata,
+  ContractOwner,
+  ContractPlatformFee,
+  ContractRoles,
+  ContractRoyalty,
+  ContractPrimarySale,
+  Erc721,
+  StandardErc721,
+  Erc721WithQuantitySignatureMintable,
+  GasCostEstimator,
+  Transaction,
+} from "../../core";
+import type { NetworkInput, TransactionResultWithId } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { Erc721 } from "../../core/classes/erc-721";
-import { StandardErc721 } from "../../core/classes/erc-721-standard";
-import { Erc721WithQuantitySignatureMintable } from "../../core/classes/erc-721-with-quantity-signature-mintable";
-import { GasCostEstimator } from "../../core/classes/gas-cost-estimator";
-import { Transaction } from "../../core/classes/transactions";
-import type { NetworkInput, TransactionResultWithId } from "../../core/types";
-import { Abi } from "../../schema/contracts/custom";
-import { TokenErc721ContractSchema } from "../../schema/contracts/token-erc721";
-import { SDKOptions } from "../../schema/sdk-options";
+import { Abi, TokenErc721ContractSchema, SDKOptions } from "../../schema";
 import type { TokenERC721 } from "@thirdweb-dev/contracts-js";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { BigNumberish, CallOverrides, constants } from "ethers";

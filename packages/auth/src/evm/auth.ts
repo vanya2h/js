@@ -1,5 +1,4 @@
-import { ThirdwebAuth } from "../core";
-import { LoginPayload, VerifyOptions } from "../core/schema";
+import { LoginPayload, ThirdwebAuth, VerifyOptions } from "../core";
 import { SignerWallet } from "./signer";
 import { ethers } from "ethers";
 

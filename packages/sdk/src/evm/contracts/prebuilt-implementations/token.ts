@@ -1,23 +1,27 @@
 import { getRoleHash } from "../../common";
 import { buildTransactionFunction } from "../../common/transactions";
-import { ContractEncoder } from "../../core/classes/contract-encoder";
-import { ContractEvents } from "../../core/classes/contract-events";
-import { ContractInterceptor } from "../../core/classes/contract-interceptor";
-import { ContractMetadata } from "../../core/classes/contract-metadata";
-import { ContractPlatformFee } from "../../core/classes/contract-platform-fee";
-import { ContractRoles } from "../../core/classes/contract-roles";
-import { ContractPrimarySale } from "../../core/classes/contract-sales";
+import {
+  ContractEncoder,
+  ContractEvents,
+  ContractInterceptor,
+  ContractMetadata,
+  ContractPlatformFee,
+  ContractRoles,
+  ContractPrimarySale,
+  TokenERC20History,
+  Erc20SignatureMintable,
+  StandardErc20,
+  GasCostEstimator,
+  Transaction,
+  NetworkInput,
+} from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { TokenERC20History } from "../../core/classes/erc-20-history";
-import { Erc20SignatureMintable } from "../../core/classes/erc-20-signature-mintable";
-import { StandardErc20 } from "../../core/classes/erc-20-standard";
-import { GasCostEstimator } from "../../core/classes/gas-cost-estimator";
-import { Transaction } from "../../core/classes/transactions";
-import { NetworkInput } from "../../core/types";
-import { Abi } from "../../schema/contracts/custom";
-import { TokenErc20ContractSchema } from "../../schema/contracts/token-erc20";
-import { SDKOptions } from "../../schema/sdk-options";
-import { TokenMintInput } from "../../schema/tokens/token";
+import {
+  Abi,
+  TokenErc20ContractSchema,
+  SDKOptions,
+  TokenMintInput,
+} from "../../schema";
 import { Amount, CurrencyValue } from "../../types";
 import type { TokenERC20 } from "@thirdweb-dev/contracts-js";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";

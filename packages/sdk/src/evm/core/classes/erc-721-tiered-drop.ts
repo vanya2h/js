@@ -15,7 +15,7 @@ import {
   TieredDropPayloadSchema,
   TieredDropPayloadWithSignature,
 } from "../../schema/contracts/tiered-drop";
-import { UploadProgressEvent } from "../../types/events";
+import { UploadProgressEvent } from "../../types";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResult, TransactionResultWithId } from "../types";
 import { ContractWrapper } from "./contract-wrapper";

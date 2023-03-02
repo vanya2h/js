@@ -1,12 +1,13 @@
-import { parseGatewayUrls, prepareGatewayUrls } from "../common";
 import {
   extractObjectFiles,
   isFileOrBuffer,
+  parseGatewayUrls,
+  prepareGatewayUrls,
   replaceObjectFilesWithUris,
   replaceObjectGatewayUrlsWithSchemes,
   replaceObjectSchemesWithGatewayUrls,
   replaceSchemeWithGatewayUrl,
-} from "../common/utils";
+} from "../common";
 import {
   FileOrBufferOrString,
   GatewayUrls,
@@ -16,8 +17,8 @@ import {
   IStorageUploader,
   UploadOptions,
 } from "../types";
-import { StorageDownloader } from "./downloaders/storage-downloader";
-import { IpfsUploader } from "./uploaders/ipfs-uploader";
+import { StorageDownloader } from "./downloaders";
+import { IpfsUploader } from "./uploaders";
 
 /**
  * Upload and download files from decentralized storage systems.

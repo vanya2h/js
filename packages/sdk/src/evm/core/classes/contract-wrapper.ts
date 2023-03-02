@@ -15,12 +15,18 @@ import { getPolygonGasPriorityFee } from "../../common/gas-price";
 import { signEIP2612Permit } from "../../common/permit";
 import { signTypedDataInternal } from "../../common/sign";
 import { isBrowser } from "../../common/utils";
-import { CONTRACT_ADDRESSES, ChainId } from "../../constants";
-import { getContractAddressByChainId } from "../../constants/addresses";
-import { EventType } from "../../constants/events";
-import { CallOverrideSchema } from "../../schema";
-import { AbiSchema, ContractSource } from "../../schema/contracts/custom";
-import { SDKOptions } from "../../schema/sdk-options";
+import {
+  CONTRACT_ADDRESSES,
+  ChainId,
+  getContractAddressByChainId,
+  EventType,
+} from "../../constants";
+import {
+  AbiSchema,
+  CallOverrideSchema,
+  ContractSource,
+  SDKOptions,
+} from "../../schema";
 import {
   ForwardRequestMessage,
   GaslessTransaction,

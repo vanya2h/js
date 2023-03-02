@@ -1,9 +1,8 @@
 import { getCompositePluginABI } from "../common/plugin";
 import { SmartContract } from "../contracts/smart-contract";
+import { NetworkInput } from "../core";
 import { getSignerAndProvider } from "../core/classes/rpc-connection-handler";
-import { NetworkInput } from "../core/types";
-import { AbiSchema } from "../schema/contracts/custom";
-import { SDKOptions } from "../schema/sdk-options";
+import { AbiSchema, SDKOptions } from "../schema";
 import {
   cacheContract,
   getCachedContract,

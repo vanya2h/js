@@ -1,4 +1,4 @@
-import { ThirdwebAuth } from "../src/core";
+import { ThirdwebAuth } from "../src";
 import { KeypairWallet } from "../src/solana";
 import { Keypair } from "@solana/web3.js";
 import { expect } from "chai";

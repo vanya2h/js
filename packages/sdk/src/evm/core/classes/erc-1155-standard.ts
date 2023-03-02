@@ -1,6 +1,6 @@
 import { NFT } from "../../../core/schema/nft";
 import { buildTransactionFunction } from "../../common/transactions";
-import { AirdropInput } from "../../types/airdrop/airdrop";
+import { AirdropInput } from "../../types";
 import { BaseERC1155, BaseSignatureMintERC1155 } from "../../types/eips";
 import { UpdateableNetwork } from "../interfaces/contract";
 import { NetworkInput } from "../types";

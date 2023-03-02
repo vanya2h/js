@@ -511,7 +511,10 @@ export class ContractDeployer extends RPCConnectionHandler {
 
     if (implementationAddress) {
       // implementation exists on the current chain, continue with normal flow
-      return this.deployContractFromUri(publishedContract.metadataUri, constructorParams);
+      return this.deployContractFromUri(
+        publishedContract.metadataUri,
+        constructorParams,
+      );
     } else {
       // implementation does NOT exist on chain, deploy the implementation first, then deploy a proxy
       implementationAddress = await this.deployContractFromUri(

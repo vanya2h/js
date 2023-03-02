@@ -1,19 +1,19 @@
-import { fetchCurrencyValue } from "../../common/currency";
-import { ContractEncoder } from "../../core/classes/contract-encoder";
-import { ContractEvents } from "../../core/classes/contract-events";
-import { ContractInterceptor } from "../../core/classes/contract-interceptor";
-import { ContractMetadata } from "../../core/classes/contract-metadata";
-import { ContractRoles } from "../../core/classes/contract-roles";
+import { fetchCurrencyValue } from "../../common";
+import {
+  ContractEncoder,
+  ContractEvents,
+  ContractInterceptor,
+  ContractMetadata,
+  ContractRoles,
+  GasCostEstimator,
+  Transaction,
+  NetworkInput,
+  TransactionResult,
+} from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { GasCostEstimator } from "../../core/classes/gas-cost-estimator";
-import { Transaction } from "../../core/classes/transactions";
 import { UpdateableNetwork } from "../../core/interfaces/contract";
-import { NetworkInput, TransactionResult } from "../../core/types";
-import { Abi } from "../../schema/contracts/custom";
-import { SplitsContractSchema } from "../../schema/contracts/splits";
-import { SDKOptions } from "../../schema/sdk-options";
-import { SplitRecipient } from "../../types/SplitRecipient";
-import { CurrencyValue } from "../../types/currency";
+import { Abi, SplitsContractSchema, SDKOptions } from "../../schema";
+import { CurrencyValue, SplitRecipient } from "../../types";
 import type {
   IERC20,
   Split as SplitContract,

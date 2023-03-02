@@ -10,7 +10,7 @@ import {
   MarketplaceV3Initializer,
   OfferV3,
   Status,
-} from "../../src/evm";
+} from "../../src";
 import { fastForwardTime, jsonProvider, sdk, signers } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect, assert } from "chai";

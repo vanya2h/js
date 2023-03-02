@@ -1,4 +1,4 @@
-import { Json } from "../../core/schema";
+import { Json } from "../../core";
 import { ThirdwebAuthContext, ThirdwebAuthUser } from "../types";
 import { Request } from "express";
 

@@ -1,11 +1,11 @@
-import { NFTMetadataInput, NFTMetadataOrUri } from "../../src/core/schema/nft";
+import { NFTMetadataInput, NFTMetadataOrUri } from "../../src";
 import {
   ClaimEligibility,
   NATIVE_TOKEN_ADDRESS,
   NFTDrop,
   NFTDropInitializer,
   TokenInitializer,
-} from "../../src/evm";
+} from "../../src";
 import { expectError, sdk, signers, storage } from "./before-setup";
 import { AddressZero } from "@ethersproject/constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";

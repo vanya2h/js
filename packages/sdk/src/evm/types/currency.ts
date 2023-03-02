@@ -3,10 +3,7 @@
  * @public
  */
 import { AmountSchema } from "../../core/schema/shared";
-import {
-  CurrencySchema,
-  CurrencyValueSchema,
-} from "../schema/contracts/common/currency";
+import { CurrencySchema, CurrencyValueSchema } from "../schema";
 import { z } from "zod";
 
 /**

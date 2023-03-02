@@ -1,5 +1,4 @@
-import { ThirdwebAuth } from "../../core";
-import { Json, LoginPayloadOutputSchema, User } from "../../core/schema";
+import { ThirdwebAuth, Json, LoginPayloadOutputSchema, User } from "../../core";
 import { GenericAuthWallet } from "@thirdweb-dev/wallets";
 import { Request } from "express";
 import { z } from "zod";

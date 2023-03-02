@@ -1,7 +1,7 @@
 import {
   extractMinimalProxyImplementationAddress,
   ThirdwebSDK,
-} from "../../src/evm";
+} from "../../src";
 import { signers, sdk } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";

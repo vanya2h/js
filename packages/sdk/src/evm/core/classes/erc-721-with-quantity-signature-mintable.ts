@@ -11,7 +11,7 @@ import {
   Signature721WithQuantityInput,
   Signature721WithQuantityOutput,
   SignedPayload721WithQuantitySignature,
-} from "../../schema/contracts/common/signature";
+} from "../../schema";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResultWithId } from "../types";
 import { ContractWrapper } from "./contract-wrapper";

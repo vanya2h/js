@@ -1,5 +1,4 @@
-import { ThirdwebAuth } from "../core";
-import { LoginPayload, VerifyOptions } from "../core/schema";
+import { LoginPayload, ThirdwebAuth, VerifyOptions } from "../core";
 import { KeypairWallet } from "./signer";
 import { Keypair } from "@solana/web3.js";
 

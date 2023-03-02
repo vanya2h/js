@@ -21,10 +21,9 @@ import {
   FEATURE_EDITION_CLAIM_CONDITIONS_V2,
   FEATURE_EDITION_LAZY_MINTABLE_V2,
 } from "../../constants/erc1155-features";
+import { EditionMetadataOrUri } from "../../schema";
 import { AirdropInputSchema } from "../../schema/contracts/common/airdrop";
-import { EditionMetadataOrUri } from "../../schema/tokens/edition";
-import { ClaimOptions, UploadProgressEvent } from "../../types";
-import { AirdropInput } from "../../types/airdrop/airdrop";
+import { ClaimOptions, UploadProgressEvent, AirdropInput } from "../../types";
 import {
   BaseDropERC1155,
   BaseERC1155,

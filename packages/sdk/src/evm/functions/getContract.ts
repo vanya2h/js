@@ -1,13 +1,13 @@
 import { PREBUILT_CONTRACTS_MAP } from "../contracts";
 import { SmartContract } from "../contracts/smart-contract";
-import { ContractPublisher } from "../core/classes/contract-publisher";
-import { getSignerAndProvider } from "../core/classes/rpc-connection-handler";
 import {
   ContractForPrebuiltContractType,
   NetworkInput,
   PrebuiltContractType,
-} from "../core/types";
-import { SDKOptions } from "../schema/sdk-options";
+} from "../core";
+import { ContractPublisher } from "../core/classes/contract-publisher";
+import { getSignerAndProvider } from "../core/classes/rpc-connection-handler";
+import { SDKOptions } from "../schema";
 import { getContractFromAbi } from "./getContractFromAbi";
 import {
   cacheContract,

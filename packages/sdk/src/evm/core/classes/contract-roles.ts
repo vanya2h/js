@@ -1,6 +1,4 @@
-import { hasFunction } from "../../common";
-import { MissingRoleError } from "../../common/error";
-import { getRoleHash, Role } from "../../common/role";
+import { hasFunction, getRoleHash, Role, MissingRoleError } from "../../common";
 import { FEATURE_PERMISSIONS } from "../../constants/thirdweb-features";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResult } from "../types";

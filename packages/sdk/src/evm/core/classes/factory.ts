@@ -20,7 +20,7 @@ import {
   TokenInitializer,
   VoteInitializer,
 } from "../../contracts";
-import { SDKOptions } from "../../schema/sdk-options";
+import { SDKOptions } from "../../schema";
 import { DeployEvents } from "../../types";
 import {
   DeploySchemaForPrebuiltContractType,
@@ -342,7 +342,7 @@ export class ContractFactory extends ContractWrapper<TWFactory> {
   }
 
   private async getImplementation(
-    contract: typeof PREBUILT_CONTRACTS_MAP[PrebuiltContractType],
+    contract: (typeof PREBUILT_CONTRACTS_MAP)[PrebuiltContractType],
     version?: number,
   ) {
     const encodedType = ethers.utils.formatBytes32String(contract.name);

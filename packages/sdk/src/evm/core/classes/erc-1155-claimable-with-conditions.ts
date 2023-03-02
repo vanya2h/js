@@ -1,7 +1,7 @@
 import { buildTransactionFunction } from "../../common/transactions";
 import { FEATURE_EDITION_CLAIM_CONDITIONS_V2 } from "../../constants/erc1155-features";
-import { CustomContractSchema } from "../../schema/contracts/custom";
-import { ClaimOptions } from "../../types/claim-conditions/claim-conditions";
+import { CustomContractSchema } from "../../schema";
+import { ClaimOptions } from "../../types";
 import { BaseClaimConditionERC1155 } from "../../types/eips";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { ContractMetadata } from "./contract-metadata";

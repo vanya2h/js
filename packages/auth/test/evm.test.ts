@@ -1,4 +1,4 @@
-import { ThirdwebAuth } from "../src/core";
+import { ThirdwebAuth } from "../src";
 import { SignerWallet } from "../src/evm";
 import { expect } from "chai";
 import { Wallet } from "ethers";

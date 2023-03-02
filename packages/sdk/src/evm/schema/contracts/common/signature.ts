@@ -4,7 +4,7 @@ import {
   BasisPointsSchema,
 } from "../../../../core/schema/shared";
 import { resolveOrGenerateId } from "../../../common/signature-minting";
-import { NATIVE_TOKEN_ADDRESS } from "../../../constants/currency";
+import { NATIVE_TOKEN_ADDRESS } from "../../../constants";
 import {
   BigNumberishSchema,
   BigNumberSchema,

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions */
 import { IpfsUploader, ThirdwebStorage } from "../src";
-import { DEFAULT_GATEWAY_URLS } from "../src/common/urls";
+import { DEFAULT_GATEWAY_URLS } from "../src";
 import { expect } from "chai";
 import { readFileSync } from "fs";
 

@@ -14,7 +14,7 @@ import {
   Signature1155PayloadInputWithTokenId,
   Signature1155PayloadOutput,
   SignedPayload1155,
-} from "../../schema/contracts/common/signature";
+} from "../../schema";
 import { BaseSignatureMintERC1155 } from "../../types/eips";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResultWithId } from "../types";

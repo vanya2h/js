@@ -10,10 +10,7 @@ import {
   isTokenApprovedForTransfer,
 } from "../../common/marketplace";
 import { fetchTokenMetadataForContract } from "../../common/nft";
-import {
-  InterfaceId_IERC1155,
-  InterfaceId_IERC721,
-} from "../../constants/contract";
+import { InterfaceId_IERC1155, InterfaceId_IERC721 } from "../../constants";
 import { FEATURE_DIRECT_LISTINGS } from "../../constants/thirdweb-features";
 import { Status } from "../../enums";
 import {

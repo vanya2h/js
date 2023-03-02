@@ -1,6 +1,6 @@
 import { hasFunction } from "../../common";
 import { FEATURE_ROYALTY } from "../../constants/thirdweb-features";
-import { CommonRoyaltySchema } from "../../schema/contracts/common";
+import { CommonRoyaltySchema } from "../../schema";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResult } from "../types";
 import { ContractMetadata, IGenericSchemaType } from "./contract-metadata";

@@ -3,7 +3,7 @@ import {
   PayloadToSign20,
   SignedPayload721WithQuantitySignature,
   ThirdwebSDK,
-} from "../../src/evm";
+} from "../../src";
 import { expectError, signers, sdk } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import {

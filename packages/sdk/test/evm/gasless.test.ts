@@ -1,5 +1,5 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
-import { ThirdwebSDK } from "../../src/evm";
+import { ThirdwebSDK } from "../../src";
 import { assert } from "chai";
 import { ethers, Wallet } from "ethers";
 

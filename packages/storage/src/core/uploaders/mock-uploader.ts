@@ -1,7 +1,10 @@
-import { isBufferInstance, isFileInstance } from "../../common/utils";
-import { FileOrBufferOrString } from "../../types/data";
-import { MemoryStorage } from "../../types/download";
-import { IpfsUploadBatchOptions, IStorageUploader } from "../../types/upload";
+import { isBufferInstance, isFileInstance } from "../../common";
+import {
+  FileOrBufferOrString,
+  MemoryStorage,
+  IpfsUploadBatchOptions,
+  IStorageUploader,
+} from "../../types";
 import { v4 as uuidv4 } from "uuid";
 
 /**

@@ -4,23 +4,23 @@ import {
   FEATURE_ENGLISH_AUCTIONS,
   FEATURE_OFFERS,
 } from "../../constants/thirdweb-features";
-import { ContractEncoder } from "../../core/classes/contract-encoder";
-import { ContractEvents } from "../../core/classes/contract-events";
-import { ContractInterceptor } from "../../core/classes/contract-interceptor";
-import { ContractMetadata } from "../../core/classes/contract-metadata";
-import { ContractPlatformFee } from "../../core/classes/contract-platform-fee";
-import { ContractRoles } from "../../core/classes/contract-roles";
+import {
+  ContractEncoder,
+  ContractEvents,
+  ContractInterceptor,
+  ContractMetadata,
+  ContractPlatformFee,
+  ContractRoles,
+  GasCostEstimator,
+  MarketplaceV3DirectListings,
+  MarketplaceV3EnglishAuctions,
+  MarketplaceV3Offers,
+  Transaction,
+  NetworkInput,
+} from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { GasCostEstimator } from "../../core/classes/gas-cost-estimator";
-import { MarketplaceV3DirectListings } from "../../core/classes/marketplacev3-direct-listings";
-import { MarketplaceV3EnglishAuctions } from "../../core/classes/marketplacev3-english-auction";
-import { MarketplaceV3Offers } from "../../core/classes/marketplacev3-offers";
-import { Transaction } from "../../core/classes/transactions";
 import { UpdateableNetwork } from "../../core/interfaces/contract";
-import { NetworkInput } from "../../core/types";
-import { Abi } from "../../schema/contracts/custom";
-import { MarketplaceContractSchema } from "../../schema/contracts/marketplace";
-import { SDKOptions } from "../../schema/sdk-options";
+import { Abi, MarketplaceContractSchema, SDKOptions } from "../../schema";
 import type {
   MarketplaceV3 as MarketplaceV3Contract,
   DirectListingsLogic,

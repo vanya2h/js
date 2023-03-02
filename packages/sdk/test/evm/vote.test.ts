@@ -1,4 +1,4 @@
-import { Token, TokenInitializer, Vote, VoteInitializer } from "../../src/evm";
+import { Token, TokenInitializer, Vote, VoteInitializer } from "../../src";
 import { sdk, signers, hardhatEthers } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { assert } from "chai";

@@ -1,5 +1,5 @@
 import { NFTMetadata, NFTMetadataOrUri } from "../../../core/schema/nft";
-import { detectContractFeature } from "../../common/feature-detection";
+import { detectContractFeature } from "../../common";
 import { getPrebuiltInfo } from "../../common/legacy";
 import { uploadOrExtractURIs } from "../../common/nft";
 import { buildTransactionFunction } from "../../common/transactions";
@@ -7,12 +7,12 @@ import {
   FEATURE_EDITION_LAZY_MINTABLE_V2,
   FEATURE_EDITION_REVEALABLE,
 } from "../../constants/erc1155-features";
+import { UploadProgressEvent } from "../../types";
 import {
   BaseClaimConditionERC1155,
   BaseDelayedRevealERC1155,
   BaseDropERC1155,
 } from "../../types/eips";
-import { UploadProgressEvent } from "../../types/events";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { TransactionResultWithId } from "../types";
 import { ContractWrapper } from "./contract-wrapper";

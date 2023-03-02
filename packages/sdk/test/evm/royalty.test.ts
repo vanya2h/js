@@ -1,4 +1,4 @@
-import { Edition, EditionInitializer } from "../../src/evm";
+import { Edition, EditionInitializer } from "../../src";
 import { sdk, signers } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";

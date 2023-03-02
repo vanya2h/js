@@ -1,4 +1,4 @@
-import { getDefaultTrustedForwarders } from "../constants/addresses";
+import { getDefaultTrustedForwarders } from "../constants";
 import {
   PackInitializer,
   NFTDropInitializer,

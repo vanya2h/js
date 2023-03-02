@@ -1,4 +1,4 @@
-import { PrebuiltContractType } from "../core/types";
+import { PrebuiltContractType } from "../core";
 import { ChainId, SUPPORTED_CHAIN_ID, SUPPORTED_CHAIN_IDS } from "./chains";
 import { constants } from "ethers";
 
@@ -297,7 +297,7 @@ export function getApprovedImplementation(
  */
 export function getContractAddressByChainId(
   chainId: SUPPORTED_CHAIN_ID | ChainId.Hardhat,
-  contractName: keyof typeof CONTRACT_ADDRESSES[SUPPORTED_CHAIN_ID],
+  contractName: keyof (typeof CONTRACT_ADDRESSES)[SUPPORTED_CHAIN_ID],
 ): string | undefined {
   // for testing only
   if (chainId === ChainId.Hardhat || chainId === ChainId.Localhost) {

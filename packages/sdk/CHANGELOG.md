@@ -346,6 +346,7 @@
 - [#329](https://github.com/thirdweb-dev/js/pull/329) [`5200d5d`](https://github.com/thirdweb-dev/js/commit/5200d5d7e730da58bd4d3e7c222e3c661265f913) Thanks [@adam-maj](https://github.com/adam-maj)! - ### Breaking changes:
 
   1. claim conditions had some changes to support the new drop contracts:
+
      - `maxClaimablePerTransaction` is now named `maxClaimablePerWallet`
      - `maxQuantity` is now named `maxClaimable`
 

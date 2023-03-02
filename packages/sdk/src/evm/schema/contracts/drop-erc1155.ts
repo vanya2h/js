@@ -6,8 +6,8 @@ import {
   CommonRoyaltySchema,
   CommonSymbolSchema,
   CommonTrustedForwarderSchema,
+  MerkleSchema,
 } from "./common";
-import { MerkleSchema } from "./common/snapshots";
 
 export const DropErc1155ContractInput = CommonContractSchema.merge(
   CommonRoyaltySchema,

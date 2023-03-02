@@ -1,8 +1,5 @@
 import { SnapshotInputSchema } from "../schema";
-import {
-  SnapshotInfo,
-  SnapshotInput,
-} from "../types/claim-conditions/claim-conditions";
+import { SnapshotInfo, SnapshotInput } from "../types";
 import { DuplicateLeafsError } from "./error";
 import {
   ShardedMerkleTree,

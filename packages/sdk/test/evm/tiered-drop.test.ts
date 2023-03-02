@@ -1,5 +1,4 @@
-import { NATIVE_TOKEN_ADDRESS, ThirdwebSDK } from "../../src/evm";
-import { SmartContract } from "../../src/evm/contracts/smart-contract";
+import { NATIVE_TOKEN_ADDRESS, SmartContract, ThirdwebSDK } from "../../src";
 import { signers } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect, assert } from "chai";

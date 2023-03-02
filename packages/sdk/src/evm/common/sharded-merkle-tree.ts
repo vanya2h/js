@@ -6,7 +6,7 @@ import {
   SnapshotEntryWithProof,
   SnapshotEntryWithProofSchema,
   SnapshotInputSchema,
-} from "../schema/contracts/common/snapshots";
+} from "../schema";
 import { SnapshotInput } from "../types";
 import { convertQuantityToBigNumber } from "./claim-conditions";
 import { fetchCurrencyMetadata } from "./currency";

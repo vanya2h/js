@@ -6,7 +6,7 @@ import {
   SignedPayload1155,
   Token,
   TokenInitializer,
-} from "../../src/evm";
+} from "../../src";
 import { sdk, signers, storage } from "./before-setup";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { assert, expect } from "chai";

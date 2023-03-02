@@ -1,9 +1,5 @@
-import { getChainProvider, getProviderFromRpcUrl } from "../../constants/urls";
-import {
-  SDKOptions,
-  SDKOptionsOutput,
-  SDKOptionsSchema,
-} from "../../schema/sdk-options";
+import { getChainProvider, getProviderFromRpcUrl } from "../../constants";
+import { SDKOptions, SDKOptionsOutput, SDKOptionsSchema } from "../../schema";
 import { NetworkInput } from "../types";
 import { Signer, providers } from "ethers";
 import EventEmitter from "eventemitter3";

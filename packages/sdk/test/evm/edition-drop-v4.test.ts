@@ -4,7 +4,7 @@ import {
   EditionDropInitializer,
   NATIVE_TOKEN_ADDRESS,
   TokenInitializer,
-} from "../../src/evm";
+} from "../../src";
 import { expectError, sdk, signers } from "./before-setup";
 import { AddressZero } from "@ethersproject/constants";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";

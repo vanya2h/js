@@ -1,4 +1,4 @@
-import { ThirdwebSDK } from "../../src/evm";
+import { ThirdwebSDK } from "../../src";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Goerli, Fncy } from "@thirdweb-dev/chains";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";

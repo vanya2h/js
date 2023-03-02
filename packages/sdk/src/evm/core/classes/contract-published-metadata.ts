@@ -8,7 +8,7 @@ import {
   AbiFunction,
   AbiSchema,
   PublishedMetadata,
-} from "../../schema/contracts/custom";
+} from "../../schema";
 import { ContractWrapper } from "./contract-wrapper";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { BaseContract } from "ethers";

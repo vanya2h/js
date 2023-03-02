@@ -2,27 +2,28 @@ import { QueryAllParams } from "../../../core/schema/QueryParams";
 import { NFT, NFTMetadata, NFTMetadataOrUri } from "../../../core/schema/nft";
 import { getRoleHash } from "../../common";
 import { buildTransactionFunction } from "../../common/transactions";
-import { ContractEncoder } from "../../core/classes/contract-encoder";
-import { ContractEvents } from "../../core/classes/contract-events";
-import { ContractInterceptor } from "../../core/classes/contract-interceptor";
-import { ContractMetadata } from "../../core/classes/contract-metadata";
-import { ContractOwner } from "../../core/classes/contract-owner";
-import { ContractPlatformFee } from "../../core/classes/contract-platform-fee";
-import { ContractRoles } from "../../core/classes/contract-roles";
-import { ContractRoyalty } from "../../core/classes/contract-royalty";
-import { ContractPrimarySale } from "../../core/classes/contract-sales";
+import {
+  ContractEncoder,
+  ContractEvents,
+  ContractInterceptor,
+  ContractMetadata,
+  ContractOwner,
+  ContractPlatformFee,
+  ContractRoles,
+  ContractRoyalty,
+  ContractPrimarySale,
+  DropErc1155ClaimConditions,
+  DropErc1155History,
+  Erc1155,
+  StandardErc1155,
+  GasCostEstimator,
+  Transaction,
+  NetworkInput,
+  TransactionResultWithId,
+} from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { DropErc1155ClaimConditions } from "../../core/classes/drop-erc1155-claim-conditions";
-import { DropErc1155History } from "../../core/classes/drop-erc1155-history";
-import { Erc1155 } from "../../core/classes/erc-1155";
-import { StandardErc1155 } from "../../core/classes/erc-1155-standard";
-import { GasCostEstimator } from "../../core/classes/gas-cost-estimator";
-import { Transaction } from "../../core/classes/transactions";
-import { NetworkInput, TransactionResultWithId } from "../../core/types";
 import { PaperCheckout } from "../../integrations/thirdweb-checkout";
-import { Abi } from "../../schema/contracts/custom";
-import { DropErc1155ContractSchema } from "../../schema/contracts/drop-erc1155";
-import { SDKOptions } from "../../schema/sdk-options";
+import { Abi, DropErc1155ContractSchema, SDKOptions } from "../../schema";
 import { PrebuiltEditionDrop } from "../../types/eips";
 import { ThirdwebStorage, UploadProgressEvent } from "@thirdweb-dev/storage";
 import { BigNumber, BigNumberish, CallOverrides, constants } from "ethers";

@@ -1,6 +1,6 @@
 import { buildTransactionFunction } from "../../common/transactions";
-import { TokenMintInput } from "../../schema/tokens/token";
-import { Amount, Currency, CurrencyValue } from "../../types/currency";
+import { TokenMintInput } from "../../schema";
+import { Amount, Currency, CurrencyValue } from "../../types";
 import { BaseERC20, BaseSignatureMintERC20 } from "../../types/eips";
 import { UpdateableNetwork } from "../interfaces/contract";
 import { NetworkInput, TransactionResult } from "../types";

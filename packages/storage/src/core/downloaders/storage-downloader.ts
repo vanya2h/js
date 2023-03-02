@@ -1,4 +1,4 @@
-import { replaceSchemeWithGatewayUrl } from "../../common/utils";
+import { replaceSchemeWithGatewayUrl } from "../../common";
 import { GatewayUrls, IStorageDownloader } from "../../types";
 import fetch from "cross-fetch";
 

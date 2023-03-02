@@ -10,7 +10,7 @@ import {
   Signature20PayloadInput,
   Signature20PayloadOutput,
   SignedPayload20,
-} from "../../schema/contracts/common/signature";
+} from "../../schema";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { ContractRoles } from "./contract-roles";
 import { ContractWrapper } from "./contract-wrapper";

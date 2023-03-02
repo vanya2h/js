@@ -19,12 +19,13 @@ import {
 } from "../../common/marketplace";
 import { fetchTokenMetadataForContract } from "../../common/nft";
 import { ListingType } from "../../enums";
-import { CurrencyValue, Price } from "../../types/currency";
 import {
+  CurrencyValue,
+  Price,
   AuctionListing,
   NewAuctionListing,
   Offer,
-} from "../../types/marketplace";
+} from "../../types";
 import { TransactionResult, TransactionResultWithId } from "../types";
 import { ContractEncoder } from "./contract-encoder";
 import { ContractWrapper } from "./contract-wrapper";

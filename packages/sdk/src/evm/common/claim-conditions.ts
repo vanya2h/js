@@ -6,12 +6,10 @@ import {
   ClaimConditionInputArray,
   ClaimConditionInputSchema,
   ClaimConditionOutputSchema,
-} from "../schema/contracts/common/claim-conditions";
-import {
   SnapshotEntry,
   SnapshotEntryWithProof,
   SnapshotSchema,
-} from "../schema/contracts/common/snapshots";
+} from "../schema";
 import {
   ClaimCondition,
   ClaimConditionInput,

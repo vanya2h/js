@@ -13,17 +13,9 @@ import {
   validateNewListingParam,
 } from "../../common/marketplace";
 import { fetchTokenMetadataForContract } from "../../common/nft";
-import {
-  InterfaceId_IERC1155,
-  InterfaceId_IERC721,
-} from "../../constants/contract";
+import { InterfaceId_IERC1155, InterfaceId_IERC721 } from "../../constants";
 import { ListingType } from "../../enums";
-import { Price } from "../../types/currency";
-import {
-  DirectListing,
-  NewDirectListing,
-  Offer,
-} from "../../types/marketplace";
+import { Price, DirectListing, NewDirectListing, Offer } from "../../types";
 import { TransactionResult, TransactionResultWithId } from "../types";
 import { ContractWrapper } from "./contract-wrapper";
 import type {

@@ -1,11 +1,13 @@
-import { getCIDForUpload, isUploaded } from "../../common";
-import { PINATA_IPFS_URL, TW_IPFS_SERVER_URL } from "../../common/urls";
 import {
+  getCIDForUpload,
+  isUploaded,
+  PINATA_IPFS_URL,
+  TW_IPFS_SERVER_URL,
   isBrowser,
   isBufferOrStringWithName,
   isFileBufferOrStringEqual,
   isFileInstance,
-} from "../../common/utils";
+} from "../../common";
 import {
   FileOrBufferOrString,
   IpfsUploadBatchOptions,

@@ -1,4 +1,4 @@
-import { ThirdwebSDK } from "../../src/evm";
+import { ThirdwebSDK } from "../../src";
 import { expectError, sdk } from "./before-setup";
 import { expect } from "chai";
 import { ethers } from "ethers";

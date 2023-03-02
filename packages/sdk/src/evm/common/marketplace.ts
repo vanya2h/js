@@ -1,16 +1,13 @@
 import { DEFAULT_QUERY_ALL_COUNT } from "../../core/schema/QueryParams";
 import { MAX_BPS } from "../../core/schema/shared";
-import {
-  InterfaceId_IERC1155,
-  InterfaceId_IERC721,
-} from "../constants/contract";
+import { InterfaceId_IERC1155, InterfaceId_IERC721 } from "../constants";
 import { ContractWrapper } from "../core/classes/contract-wrapper";
 import {
   NewAuctionListing,
   NewDirectListing,
   Offer,
   UnmappedOffer,
-} from "../types/marketplace";
+} from "../types";
 import { fetchCurrencyValue } from "./currency";
 import type { IERC1155, IERC165, IERC721 } from "@thirdweb-dev/contracts-js";
 import ERC165Abi from "@thirdweb-dev/contracts-js/dist/abis/IERC165.json";

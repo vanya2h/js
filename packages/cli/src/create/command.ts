@@ -120,7 +120,7 @@ export async function twCreate(
     projectType = "app";
   }
 
-  if(projectType === "extension") {
+  if (projectType === "extension") {
     createExtension = true;
 
     if (options.forge) {
@@ -170,7 +170,9 @@ export async function twCreate(
   if (!onlyContract) {
     if (!projectPath) {
       const defaultName =
-        (projectType === "contract" || projectType === "extension") ? "thirdweb-contracts" : "thirdweb-app";
+        projectType === "contract" || projectType === "extension"
+          ? "thirdweb-contracts"
+          : "thirdweb-app";
       const res = await prompts({
         type: "text",
         name: "path",
@@ -459,7 +461,7 @@ export async function twCreate(
         contractName,
         baseContract,
         onlyContract,
-        createExtension
+        createExtension,
       });
     }
   } catch (reason) {

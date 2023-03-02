@@ -1,7 +1,4 @@
-import {
-  FullPublishMetadata,
-  PreDeployMetadataFetched,
-} from "../../schema/contracts/custom";
+import { FullPublishMetadata, PreDeployMetadataFetched } from "../../schema";
 
 export type DeployOptions = {
   forceDirectDeploy?: boolean;

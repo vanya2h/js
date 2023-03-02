@@ -2,12 +2,10 @@ import {
   ClaimConditionInputSchema,
   ClaimConditionOutputSchema,
   PartialClaimConditionInputSchema,
-} from "../../schema/contracts/common/claim-conditions";
-import {
   SnapshotInfoSchema,
   SnapshotInputSchema,
   SnapshotSchema,
-} from "../../schema/contracts/common/snapshots";
+} from "../../schema";
 import { Price } from "../currency";
 import { BigNumber, BigNumberish, BytesLike, CallOverrides } from "ethers";
 import { z } from "zod";

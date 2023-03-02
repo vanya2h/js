@@ -5,10 +5,7 @@ import {
   NFTMetadataInput,
   NFTMetadataOrUri,
 } from "../../core/schema/nft";
-import {
-  InterfaceId_IERC1155,
-  InterfaceId_IERC721,
-} from "../constants/contract";
+import { InterfaceId_IERC1155, InterfaceId_IERC721 } from "../constants";
 import { NotFoundError } from "./error";
 import type {
   IERC1155Metadata,

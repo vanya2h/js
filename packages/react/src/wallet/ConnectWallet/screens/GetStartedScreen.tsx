@@ -123,7 +123,7 @@ export const GetStartedScreen: React.FC<{
             }}
           >
             <Img width={iconSize.lg} height={iconSize.lg} src={Apple} />
-            <span>Download on Apple Store</span>
+            <span>Download on App Store</span>
           </ButtonLink>
         </>
       )}

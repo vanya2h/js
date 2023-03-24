@@ -150,7 +150,7 @@ export const GetStartedWithWallets: React.FC<{
               }}
             >
               <Img src={Apple} width={iconSize.lg} height={iconSize.lg} />
-              <span>Download on Apple Store</span>
+              <span>Download on App Store</span>
             </ButtonLink>
           </div>
 

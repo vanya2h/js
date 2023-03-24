@@ -1,8 +1,4 @@
-import {
-  CoinbaseWallet,
-  DeviceWallet,
-  MetamaskWallet,
-} from "../../wallet/wallets";
+import { CoinbaseWallet, MetamaskWallet } from "../../wallet/wallets";
 import { DEFAULT_API_KEY } from "../constants/rpc";
 import {
   SupportedWallet,
@@ -13,11 +9,12 @@ import { WalletUIStatesProvider } from "./wallet-ui-states-provider";
 import { ConnectModal } from "../../wallet/ConnectWallet/Connect";
 import { ThemeProvider } from "@emotion/react";
 import { darkTheme, lightTheme } from "../../design-system";
+import { WalletConnectV1 } from "@thirdweb-dev/wallets";
 
-const DEFAULT_WALLETS = [MetamaskWallet, CoinbaseWallet, DeviceWallet] as [
+const DEFAULT_WALLETS = [MetamaskWallet, CoinbaseWallet, WalletConnectV1] as [
   typeof MetamaskWallet,
   typeof CoinbaseWallet,
-  typeof DeviceWallet,
+  typeof WalletConnectV1,
 ];
 
 interface ThirdwebProviderProps
@@ -27,14 +24,14 @@ interface ThirdwebProviderProps
   > {
   /**
    * Wallets that will be supported by the dApp
-   * @defaultValue [MetaMaskWallet, CoinbaseWallet, DeviceWallet]
+   * @defaultValue [MetaMaskWallet, CoinbaseWallet, WalletConnectV1]
    *
    * @example
    * ```jsx
-   * import { MetamaskWallet, CoinbaseWallet, DeviceWallet } from "@thirdweb-dev/react";
+   * import { MetamaskWallet, CoinbaseWallet, WalletConnectV1 } from "@thirdweb-dev/react";
    *
    * <ThirdwebProvider
-   *  supportedWallets={[MetaMaskWallet, CoinbaseWallet, DeviceWallet]}
+   *  supportedWallets={[MetaMaskWallet, CoinbaseWallet, WalletConnectV1]}
    * />
    * ```
    */

@@ -1,8 +1,15 @@
-import { ContractEvents, NetworkInput, TransactionResultWithId } from "..";
+import {
+  ContractEvents,
+  NetworkInput,
+  Transaction,
+  TransactionResultWithId,
+} from "..";
 import { fetchCurrencyMetadata } from "../../common";
+import { resolveAddress } from "../../common/ens";
+import { buildTransactionFunction } from "../../common/transactions";
 import { LINK_TOKEN_ADDRESS } from "../../constants";
 import { FEATURE_PACK_VRF } from "../../constants/thirdweb-features";
-import { PackRewards, SDKOptions } from "../../schema";
+import { Address, AddressOrEns, PackRewards, SDKOptions } from "../../schema";
 import { Amount, CurrencyValue } from "../../types";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
 import { UpdateableNetwork } from "../interfaces/contract";
@@ -50,7 +57,7 @@ export class PackVRF implements UpdateableNetwork, DetectableFeature {
     this.contractWrapper.updateSignerOrProvider(network);
   }
 
-  getAddress(): string {
+  getAddress(): Address {
     return this.contractWrapper.readContract.address;
   }
 
@@ -73,32 +80,39 @@ export class PackVRF implements UpdateableNetwork, DetectableFeature {
    * @returns
    * @twfeature PackVRF
    */
-  public async open(
-    tokenId: BigNumberish,
-    amount: BigNumberish = 1,
-  ): Promise<TransactionResultWithId> {
-    const receipt = await this.contractWrapper.sendTransaction(
-      "openPack",
-      [tokenId, amount],
-      {
-        // Higher gas limit for opening packs
-        gasLimit: 500000,
-      },
-    );
-    let id = BigNumber.from(0);
-    try {
-      const event = this.contractWrapper.parseLogs<PackOpenRequestedEvent>(
-        "PackOpenRequested",
-        receipt?.logs,
-      );
-      id = event[0].args.requestId;
-    } catch (e) {}
+  open = buildTransactionFunction(
+    async (
+      tokenId: BigNumberish,
+      amount: BigNumberish = 1,
+      gasLimit = 500000,
+    ): Promise<Transaction<TransactionResultWithId>> => {
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "openPack",
+        args: [tokenId, amount],
+        overrides: {
+          // Higher gas limit for opening packs
+          gasLimit,
+        },
+        parse: (receipt) => {
+          let id = BigNumber.from(0);
+          try {
+            const event =
+              this.contractWrapper.parseLogs<PackOpenRequestedEvent>(
+                "PackOpenRequested",
+                receipt?.logs,
+              );
+            id = event[0].args.requestId;
+          } catch (e) {}
 
-    return {
-      receipt,
-      id,
-    };
-  }
+          return {
+            receipt,
+            id,
+          };
+        },
+      });
+    },
+  );
 
   /**
    * Claim the rewards from an opened pack
@@ -113,26 +127,31 @@ export class PackVRF implements UpdateableNetwork, DetectableFeature {
    * @returns the random rewards from opening a pack
    * @twfeature PackVRF
    */
-  public async claimRewards(): Promise<PackRewards> {
-    const receipt = await this.contractWrapper.sendTransaction(
-      "claimRewards",
-      [],
-      {
-        // Higher gas limit for opening packs
-        gasLimit: 500000,
-      },
-    );
-    const event = this.contractWrapper.parseLogs<PackOpenedEvent>(
-      "PackOpened",
-      receipt?.logs,
-    );
-    if (event.length === 0) {
-      throw new Error("PackOpened event not found");
-    }
-    const rewards = event[0].args.rewardUnitsDistributed;
+  claimRewards = buildTransactionFunction(
+    async (gasLimit = 500000): Promise<Transaction<Promise<PackRewards>>> => {
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "claimRewards",
+        args: [],
+        overrides: {
+          // Higher gas limit for opening packs
+          gasLimit,
+        },
+        parse: async (receipt) => {
+          const event = this.contractWrapper.parseLogs<PackOpenedEvent>(
+            "PackOpened",
+            receipt?.logs,
+          );
+          if (event.length === 0) {
+            throw new Error("PackOpened event not found");
+          }
+          const rewards = event[0].args.rewardUnitsDistributed;
 
-    return this.parseRewards(rewards);
-  }
+          return await this.parseRewards(rewards);
+        },
+      });
+    },
+  );
 
   private async parseRewards(
     rewards: ITokenBundle.TokenStructOutput[],
@@ -196,7 +215,7 @@ export class PackVRF implements UpdateableNetwork, DetectableFeature {
   public async addPackOpenEventListener(
     callback: (
       packId: string,
-      openerAddress: string,
+      openerAddress: Address,
       rewards: PackRewards,
     ) => void,
   ) {
@@ -223,9 +242,12 @@ export class PackVRF implements UpdateableNetwork, DetectableFeature {
    * @returns whether the connected address can claim rewards after opening a pack
    * @twfeature PackVRF
    */
-  public async canClaimRewards(claimerAddress?: string): Promise<boolean> {
-    const address =
-      claimerAddress || (await this.contractWrapper.getSignerAddress());
+  public async canClaimRewards(
+    claimerAddress?: AddressOrEns,
+  ): Promise<boolean> {
+    const address = await resolveAddress(
+      claimerAddress || (await this.contractWrapper.getSignerAddress()),
+    );
     return await this.contractWrapper.readContract.canClaimRewards(address);
   }
 

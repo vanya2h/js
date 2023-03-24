@@ -2,6 +2,7 @@ import { NFT, NFTMetadataOrUri } from "../../../core/schema/nft";
 import { getRoleHash } from "../../common";
 import { buildTransactionFunction } from "../../common/transactions";
 import {
+  ContractAppURI,
   ContractEncoder,
   ContractEvents,
   ContractInterceptor,
@@ -11,15 +12,17 @@ import {
   ContractRoles,
   ContractRoyalty,
   ContractPrimarySale,
-  Erc721,
   StandardErc721,
   Erc721WithQuantitySignatureMintable,
   GasCostEstimator,
   Transaction,
 } from "../../core";
-import type { NetworkInput, TransactionResultWithId } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { Abi, TokenErc721ContractSchema, SDKOptions } from "../../schema";
+import type { NetworkInput, TransactionResultWithId } from "../../core/types";
+import { Address, AddressOrEns } from "../../schema";
+import { Abi, AbiInput, AbiSchema } from "../../schema/contracts/custom";
+import { TokenErc721ContractSchema } from "../../schema/contracts/token-erc721";
+import { SDKOptions } from "../../schema/sdk-options";
 import type { TokenERC721 } from "@thirdweb-dev/contracts-js";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { BigNumberish, CallOverrides, constants } from "ethers";
@@ -46,6 +49,8 @@ export class NFTCollection extends StandardErc721<TokenERC721> {
     TokenERC721,
     typeof TokenErc721ContractSchema
   >;
+
+  public app: ContractAppURI<TokenERC721>;
   public roles: ContractRoles<
     TokenERC721,
     (typeof NFTCollection.contractRoles)[number]
@@ -98,14 +103,13 @@ export class NFTCollection extends StandardErc721<TokenERC721> {
    * @internal
    */
   public interceptor: ContractInterceptor<TokenERC721>;
-  public erc721: Erc721<TokenERC721>;
 
   constructor(
     network: NetworkInput,
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<TokenERC721>(
       network,
@@ -116,10 +120,16 @@ export class NFTCollection extends StandardErc721<TokenERC721> {
   ) {
     super(contractWrapper, storage, chainId);
 
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi || []);
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       TokenErc721ContractSchema,
+      this.storage,
+    );
+
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
       this.storage,
     );
     this.roles = new ContractRoles(
@@ -133,7 +143,6 @@ export class NFTCollection extends StandardErc721<TokenERC721> {
     this.events = new ContractEvents(this.contractWrapper);
     this.platformFees = new ContractPlatformFee(this.contractWrapper);
     this.interceptor = new ContractInterceptor(this.contractWrapper);
-    this.erc721 = new Erc721(this.contractWrapper, this.storage, chainId);
     this.signature = new Erc721WithQuantitySignatureMintable(
       this.contractWrapper,
       this.storage,
@@ -148,7 +157,7 @@ export class NFTCollection extends StandardErc721<TokenERC721> {
     this.contractWrapper.updateSignerOrProvider(network);
   }
 
-  getAddress(): string {
+  getAddress(): Address {
     return this.contractWrapper.readContract.address;
   }
 
@@ -224,7 +233,7 @@ export class NFTCollection extends StandardErc721<TokenERC721> {
    */
   mintTo = buildTransactionFunction(
     async (
-      walletAddress: string,
+      walletAddress: AddressOrEns,
       metadata: NFTMetadataOrUri,
     ): Promise<Transaction<TransactionResultWithId<NFT>>> => {
       return this.erc721.mintTo.prepare(walletAddress, metadata);
@@ -240,7 +249,7 @@ export class NFTCollection extends StandardErc721<TokenERC721> {
    * @deprecated Use `contract.mint.prepare(...args)` instead
    */
   public async getMintTransaction(
-    receiver: string,
+    receiver: AddressOrEns,
     metadata: NFTMetadataOrUri,
   ): Promise<Transaction> {
     return this.erc721.getMintTransaction(receiver, metadata);
@@ -307,7 +316,7 @@ export class NFTCollection extends StandardErc721<TokenERC721> {
    */
   mintBatchTo = buildTransactionFunction(
     async (
-      walletAddress: string,
+      walletAddress: AddressOrEns,
       metadata: NFTMetadataOrUri[],
     ): Promise<Transaction<TransactionResultWithId<NFT>[]>> => {
       return this.erc721.mintBatchTo.prepare(walletAddress, metadata);

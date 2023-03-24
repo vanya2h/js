@@ -1,6 +1,8 @@
 import { getRoleHash } from "../../common";
+import { resolveAddress } from "../../common/ens";
 import { buildTransactionFunction } from "../../common/transactions";
 import {
+  ContractAppURI,
   ContractEncoder,
   ContractEvents,
   ContractInterceptor,
@@ -13,15 +15,19 @@ import {
   StandardErc20,
   GasCostEstimator,
   Transaction,
-  NetworkInput,
 } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
+import { NetworkInput } from "../../core/types";
 import {
   Abi,
+  AbiInput,
+  AbiSchema,
   TokenErc20ContractSchema,
   SDKOptions,
-  TokenMintInput,
+  Address,
+  AddressOrEns,
 } from "../../schema";
+import { TokenMintInput } from "../../schema/tokens/token";
 import { Amount, CurrencyValue } from "../../types";
 import type { TokenERC20 } from "@thirdweb-dev/contracts-js";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
@@ -49,6 +55,8 @@ export class Token extends StandardErc20<TokenERC20> {
     TokenERC20,
     typeof TokenErc20ContractSchema
   >;
+
+  public app: ContractAppURI<TokenERC20>;
   public roles: ContractRoles<TokenERC20, (typeof Token.contractRoles)[number]>;
   public encoder: ContractEncoder<TokenERC20>;
   public estimator: GasCostEstimator<TokenERC20>;
@@ -80,7 +88,7 @@ export class Token extends StandardErc20<TokenERC20> {
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<TokenERC20>(
       network,
@@ -90,10 +98,15 @@ export class Token extends StandardErc20<TokenERC20> {
     ),
   ) {
     super(contractWrapper, storage, chainId);
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi || []);
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       TokenErc20ContractSchema,
+      this.storage,
+    );
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
       this.storage,
     );
     this.roles = new ContractRoles(this.contractWrapper, Token.contractRoles);
@@ -125,7 +138,7 @@ export class Token extends StandardErc20<TokenERC20> {
     );
   }
 
-  public async getVoteBalanceOf(account: string): Promise<CurrencyValue> {
+  public async getVoteBalanceOf(account: AddressOrEns): Promise<CurrencyValue> {
     return await this.erc20.getValue(
       await this.contractWrapper.readContract.getVotes(account),
     );
@@ -136,7 +149,7 @@ export class Token extends StandardErc20<TokenERC20> {
    *
    * @returns the address of your vote delegatee
    */
-  public async getDelegation(): Promise<string> {
+  public async getDelegation(): Promise<Address> {
     return await this.getDelegationOf(
       await this.contractWrapper.getSignerAddress(),
     );
@@ -147,8 +160,10 @@ export class Token extends StandardErc20<TokenERC20> {
    *
    * @returns the address of your vote delegatee
    */
-  public async getDelegationOf(account: string): Promise<string> {
-    return await this.contractWrapper.readContract.delegates(account);
+  public async getDelegationOf(account: AddressOrEns): Promise<Address> {
+    return await this.contractWrapper.readContract.delegates(
+      await resolveAddress(account),
+    );
   }
 
   /**
@@ -188,9 +203,11 @@ export class Token extends StandardErc20<TokenERC20> {
    * await contract.mintTo(toAddress, amount);
    * ```
    */
-  mintTo = buildTransactionFunction(async (to: string, amount: Amount) => {
-    return this.erc20.mintTo.prepare(to, amount);
-  });
+  mintTo = buildTransactionFunction(
+    async (to: AddressOrEns, amount: Amount) => {
+      return this.erc20.mintTo.prepare(to, amount);
+    },
+  );
 
   /**
    * Construct a mint transaction without executing it.
@@ -201,7 +218,7 @@ export class Token extends StandardErc20<TokenERC20> {
    * @deprecated Use `contract.mint.prepare(...args)` instead
    */
   public async getMintTransaction(
-    to: string,
+    to: AddressOrEns,
     amount: Amount,
   ): Promise<Transaction> {
     return this.erc20.getMintTransaction(to, amount);
@@ -239,13 +256,15 @@ export class Token extends StandardErc20<TokenERC20> {
    * @param delegateeAddress - delegatee wallet address
    * @alpha
    */
-  delegateTo = buildTransactionFunction(async (delegateeAddress: string) => {
-    return Transaction.fromContractWrapper({
-      contractWrapper: this.contractWrapper,
-      method: "delegate",
-      args: [delegateeAddress],
-    });
-  });
+  delegateTo = buildTransactionFunction(
+    async (delegateeAddress: AddressOrEns) => {
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "delegate",
+        args: [await resolveAddress(delegateeAddress)],
+      });
+    },
+  );
 
   /**
    * Burn Tokens
@@ -281,7 +300,7 @@ export class Token extends StandardErc20<TokenERC20> {
    * ```
    */
   burnFrom = buildTransactionFunction(
-    async (holder: string, amount: Amount) => {
+    async (holder: AddressOrEns, amount: Amount) => {
       return this.erc20.burnFrom.prepare(holder, amount);
     },
   );

@@ -1,26 +1,29 @@
 import { DEFAULT_QUERY_ALL_COUNT } from "../../../core/schema/QueryParams";
-import { getRoleHash, ListingNotFoundError } from "../../common";
-import { isNativeToken } from "../../common/currency";
+import { getRoleHash, ListingNotFoundError, isNativeToken } from "../../common";
 import { mapOffer } from "../../common/marketplace";
+import { buildTransactionFunction } from "../../common/transactions";
 import { NATIVE_TOKENS, SUPPORTED_CHAIN_ID } from "../../constants";
 import {
+  ContractAppURI,
   ContractEncoder,
   ContractEvents,
   ContractInterceptor,
   ContractMetadata,
   ContractPlatformFee,
   ContractRoles,
-  GasCostEstimator,
-  MarketplaceAuction,
-  MarketplaceDirect,
-  Transaction,
   NetworkInput,
-  TransactionResult,
 } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
 import { UpdateableNetwork } from "../../core/interfaces/contract";
 import { ListingType } from "../../enums";
-import { Abi, MarketplaceContractSchema, SDKOptions } from "../../schema";
+import {
+  Abi,
+  AbiInput,
+  AbiSchema,
+  MarketplaceContractSchema,
+  SDKOptions,
+  AddressOrEns,
+} from "../../schema";
 import {
   Price,
   AuctionListing,
@@ -64,6 +67,7 @@ export class Marketplace implements UpdateableNetwork {
     MarketplaceContract,
     typeof MarketplaceContractSchema
   >;
+  public app: ContractAppURI<MarketplaceContract>;
   public roles: ContractRoles<
     MarketplaceContract,
     (typeof Marketplace.contractRoles)[number]
@@ -153,7 +157,7 @@ export class Marketplace implements UpdateableNetwork {
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<MarketplaceContract>(
       network,
@@ -163,12 +167,18 @@ export class Marketplace implements UpdateableNetwork {
     ),
   ) {
     this._chainId = chainId;
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi || []);
     this.contractWrapper = contractWrapper;
     this.storage = storage;
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       MarketplaceContractSchema,
+      this.storage,
+    );
+
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
       this.storage,
     );
     this.roles = new ContractRoles(
@@ -376,34 +386,38 @@ export class Marketplace implements UpdateableNetwork {
    * @param quantityDesired - the quantity that you want to buy (for ERC1155 tokens)
    * @param receiver - optional receiver of the bought listing if different from the connected wallet (for direct listings only)
    */
-  public async buyoutListing(
-    listingId: BigNumberish,
-    quantityDesired?: BigNumberish,
-    receiver?: string,
-  ): Promise<TransactionResult> {
-    const listing = await this.contractWrapper.readContract.listings(listingId);
-    if (listing.listingId.toString() !== listingId.toString()) {
-      throw new ListingNotFoundError(this.getAddress(), listingId.toString());
-    }
-    switch (listing.listingType) {
-      case ListingType.Direct: {
-        invariant(
-          quantityDesired !== undefined,
-          "quantityDesired is required when buying out a direct listing",
-        );
-        return await this.direct.buyoutListing(
-          listingId,
-          quantityDesired,
-          receiver,
-        );
+  buyoutListing = buildTransactionFunction(
+    async (
+      listingId: BigNumberish,
+      quantityDesired?: BigNumberish,
+      receiver?: AddressOrEns,
+    ) => {
+      const listing = await this.contractWrapper.readContract.listings(
+        listingId,
+      );
+      if (listing.listingId.toString() !== listingId.toString()) {
+        throw new ListingNotFoundError(this.getAddress(), listingId.toString());
       }
-      case ListingType.Auction: {
-        return await this.auction.buyoutListing(listingId);
+      switch (listing.listingType) {
+        case ListingType.Direct: {
+          invariant(
+            quantityDesired !== undefined,
+            "quantityDesired is required when buying out a direct listing",
+          );
+          return await this.direct.buyoutListing.prepare(
+            listingId,
+            quantityDesired,
+            receiver,
+          );
+        }
+        case ListingType.Auction: {
+          return await this.auction.buyoutListing.prepare(listingId);
+        }
+        default:
+          throw Error(`Unknown listing type: ${listing.listingType}`);
       }
-      default:
-        throw Error(`Unknown listing type: ${listing.listingType}`);
-    }
-  }
+    },
+  );
 
   /**
    * Make an offer for a Direct or Auction Listing
@@ -426,38 +440,42 @@ export class Marketplace implements UpdateableNetwork {
    * );
    * ```
    */
-  public async makeOffer(
-    listingId: BigNumberish,
-    pricePerToken: Price,
-    quantity?: BigNumberish,
-  ): Promise<TransactionResult> {
-    const listing = await this.contractWrapper.readContract.listings(listingId);
-    if (listing.listingId.toString() !== listingId.toString()) {
-      throw new ListingNotFoundError(this.getAddress(), listingId.toString());
-    }
-    const chainId = await this.contractWrapper.getChainID();
-    switch (listing.listingType) {
-      case ListingType.Direct: {
-        invariant(
-          quantity,
-          "quantity is required when making an offer on a direct listing",
-        );
-        return await this.direct.makeOffer(
-          listingId,
-          quantity,
-          isNativeToken(listing.currency)
-            ? NATIVE_TOKENS[chainId as SUPPORTED_CHAIN_ID].wrapped.address
-            : listing.currency,
-          pricePerToken,
-        );
+  makeOffer = buildTransactionFunction(
+    async (
+      listingId: BigNumberish,
+      pricePerToken: Price,
+      quantity?: BigNumberish,
+    ) => {
+      const listing = await this.contractWrapper.readContract.listings(
+        listingId,
+      );
+      if (listing.listingId.toString() !== listingId.toString()) {
+        throw new ListingNotFoundError(this.getAddress(), listingId.toString());
       }
-      case ListingType.Auction: {
-        return await this.auction.makeBid(listingId, pricePerToken);
+      const chainId = await this.contractWrapper.getChainID();
+      switch (listing.listingType) {
+        case ListingType.Direct: {
+          invariant(
+            quantity,
+            "quantity is required when making an offer on a direct listing",
+          );
+          return await this.direct.makeOffer.prepare(
+            listingId,
+            quantity,
+            isNativeToken(listing.currency)
+              ? NATIVE_TOKENS[chainId as SUPPORTED_CHAIN_ID].wrapped.address
+              : listing.currency,
+            pricePerToken,
+          );
+        }
+        case ListingType.Auction: {
+          return await this.auction.makeBid.prepare(listingId, pricePerToken);
+        }
+        default:
+          throw Error(`Unknown listing type: ${listing.listingType}`);
       }
-      default:
-        throw Error(`Unknown listing type: ${listing.listingType}`);
-    }
-  }
+    },
+  );
 
   /**
    * Set the Auction bid buffer
@@ -470,18 +488,22 @@ export class Marketplace implements UpdateableNetwork {
    * ```
    * @param bufferBps - the bps value
    */
-  public async setBidBufferBps(bufferBps: BigNumberish): Promise<void> {
-    await this.roles.verify(
-      ["admin"],
-      await this.contractWrapper.getSignerAddress(),
-    );
+  setBidBufferBps = buildTransactionFunction(
+    async (bufferBps: BigNumberish) => {
+      await this.roles.verify(
+        ["admin"],
+        await this.contractWrapper.getSignerAddress(),
+      );
 
-    const timeBuffer = await this.getTimeBufferInSeconds();
-    await this.contractWrapper.sendTransaction("setAuctionBuffers", [
-      timeBuffer,
-      BigNumber.from(bufferBps),
-    ]);
-  }
+      const timeBuffer = await this.getTimeBufferInSeconds();
+
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "setAuctionBuffers",
+        args: [timeBuffer, BigNumber.from(bufferBps)],
+      });
+    },
+  );
 
   /**
    * Set the Auction Time buffer:
@@ -494,48 +516,59 @@ export class Marketplace implements UpdateableNetwork {
    * ```
    * @param bufferInSeconds - the seconds value
    */
-  public async setTimeBufferInSeconds(
-    bufferInSeconds: BigNumberish,
-  ): Promise<void> {
-    await this.roles.verify(
-      ["admin"],
-      await this.contractWrapper.getSignerAddress(),
-    );
+  setTimeBufferInSeconds = buildTransactionFunction(
+    async (bufferInSeconds: BigNumberish) => {
+      await this.roles.verify(
+        ["admin"],
+        await this.contractWrapper.getSignerAddress(),
+      );
 
-    const bidBuffer = await this.getBidBufferBps();
-    await this.contractWrapper.sendTransaction("setAuctionBuffers", [
-      BigNumber.from(bufferInSeconds),
-      bidBuffer,
-    ]);
-  }
+      const bidBuffer = await this.getBidBufferBps();
+
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "setAuctionBuffers",
+        args: [BigNumber.from(bufferInSeconds), bidBuffer],
+      });
+    },
+  );
 
   /**
    * Restrict listing NFTs only from the specified NFT contract address.
    * It is possible to allow listing from multiple contract addresses.
    * @param contractAddress - the NFT contract address
    */
-  public async allowListingFromSpecificAssetOnly(contractAddress: string) {
-    const encoded: string[] = [];
-    const members = await this.roles.get("asset");
-    if (members.includes(constants.AddressZero)) {
+  allowListingFromSpecificAssetOnly = buildTransactionFunction(
+    async (contractAddress: string) => {
+      const encoded: string[] = [];
+      const members = await this.roles.get("asset");
+      if (members.includes(constants.AddressZero)) {
+        encoded.push(
+          this.encoder.encode("revokeRole", [
+            getRoleHash("asset"),
+            constants.AddressZero,
+          ]),
+        );
+      }
       encoded.push(
-        this.encoder.encode("revokeRole", [
+        this.encoder.encode("grantRole", [
           getRoleHash("asset"),
-          constants.AddressZero,
+          contractAddress,
         ]),
       );
-    }
-    encoded.push(
-      this.encoder.encode("grantRole", [getRoleHash("asset"), contractAddress]),
-    );
 
-    await this.contractWrapper.multiCall(encoded);
-  }
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "multicall",
+        args: [encoded],
+      });
+    },
+  );
 
   /**
    * Allow listings from any NFT contract
    */
-  public async allowListingFromAnyAsset() {
+  allowListingFromAnyAsset = buildTransactionFunction(async () => {
     const encoded: string[] = [];
     const members = await this.roles.get("asset");
     for (const addr in members) {
@@ -549,8 +582,13 @@ export class Marketplace implements UpdateableNetwork {
         constants.AddressZero,
       ]),
     );
-    await this.contractWrapper.multiCall(encoded);
-  }
+
+    return Transaction.fromContractWrapper({
+      contractWrapper: this.contractWrapper,
+      method: "multicall",
+      args: [encoded],
+    });
+  });
 
   /** ******************************
    * PRIVATE FUNCTIONS

@@ -1,12 +1,14 @@
 import {
   DEFAULT_QUERY_ALL_COUNT,
   QueryAllParams,
-} from "../../../core/schema/QueryParams";
-import { NFT, NFTMetadata, NFTMetadataOrUri } from "../../../core/schema/nft";
-import { getRoleHash } from "../../common";
-import { buildTransactionFunction } from "../../common/transactions";
+  NFT,
+  NFTMetadata,
+  NFTMetadataOrUri,
+} from "../../../core";
+import { getRoleHash, buildTransactionFunction } from "../../common";
 import { FEATURE_NFT_REVEALABLE } from "../../constants/erc721-features";
 import {
+  ContractAppURI,
   ContractEncoder,
   ContractEvents,
   ContractInterceptor,
@@ -18,7 +20,6 @@ import {
   ContractPrimarySale,
   DelayedReveal,
   DropClaimConditions,
-  Erc721,
   StandardErc721,
   GasCostEstimator,
   Transaction,
@@ -27,8 +28,15 @@ import {
 } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
 import { PaperCheckout } from "../../integrations/thirdweb-checkout";
-import { Abi, DropErc721ContractSchema, SDKOptions } from "../../schema";
-import { UploadProgressEvent } from "../../types";
+import {
+  Address,
+  AddressOrEns,
+  Abi,
+  AbiInput,
+  AbiSchema,
+  DropErc721ContractSchema,
+  SDKOptions,
+} from "../../schema";
 import { PrebuiltNFTDrop } from "../../types/eips";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { BigNumber, BigNumberish, CallOverrides, constants } from "ethers";
@@ -57,6 +65,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
     PrebuiltNFTDrop,
     typeof DropErc721ContractSchema
   >;
+  public app: ContractAppURI<PrebuiltNFTDrop>;
   public sales: ContractPrimarySale<PrebuiltNFTDrop>;
   public platformFees: ContractPlatformFee<PrebuiltNFTDrop>;
   public events: ContractEvents<PrebuiltNFTDrop>;
@@ -151,7 +160,6 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    */
   public checkout: PaperCheckout<PrebuiltNFTDrop>;
 
-  public erc721: Erc721<PrebuiltNFTDrop>;
   public owner: ContractOwner<PrebuiltNFTDrop>;
 
   constructor(
@@ -159,7 +167,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<PrebuiltNFTDrop>(
       network,
@@ -169,10 +177,15 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
     ),
   ) {
     super(contractWrapper, storage, chainId);
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi || []);
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       DropErc721ContractSchema,
+      this.storage,
+    );
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
       this.storage,
     );
     this.roles = new ContractRoles(this.contractWrapper, NFTDrop.contractRoles);
@@ -187,7 +200,6 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
     this.estimator = new GasCostEstimator(this.contractWrapper);
     this.events = new ContractEvents(this.contractWrapper);
     this.platformFees = new ContractPlatformFee(this.contractWrapper);
-    this.erc721 = new Erc721(this.contractWrapper, this.storage, chainId);
     this.revealer = new DelayedReveal(
       this.contractWrapper,
       this.storage,
@@ -207,7 +219,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
     this.contractWrapper.updateSignerOrProvider(network);
   }
 
-  getAddress(): string {
+  getAddress(): Address {
     return this.contractWrapper.readContract.address;
   }
 
@@ -391,7 +403,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    * @deprecated Use `contract.erc721.claim.prepare(...args)` instead
    */
   public async getClaimTransaction(
-    destinationAddress: string,
+    destinationAddress: AddressOrEns,
     quantity: BigNumberish,
     checkERC20Allowance = true,
   ): Promise<Transaction> {
@@ -424,7 +436,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    */
   claimTo = buildTransactionFunction(
     async (
-      destinationAddress: string,
+      destinationAddress: AddressOrEns,
       quantity: BigNumberish,
       checkERC20Allowance = true,
     ): Promise<Transaction<TransactionResultWithId<NFT>[]>> => {
@@ -510,7 +522,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    * console.log(balance);
    * ```
    */
-  public async balanceOf(address: string): Promise<BigNumber> {
+  public async balanceOf(address: AddressOrEns): Promise<BigNumber> {
     return this.erc721.balanceOf(address);
   }
 
@@ -526,7 +538,10 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    * @param address - the wallet address
    * @param operator - the operator address
    */
-  public async isApproved(address: string, operator: string): Promise<boolean> {
+  public async isApproved(
+    address: AddressOrEns,
+    operator: AddressOrEns,
+  ): Promise<boolean> {
     return this.erc721.isApproved(address, operator);
   }
 
@@ -543,7 +558,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    * ```
    */
   transfer = buildTransactionFunction(
-    async (to: string, tokenId: BigNumberish) => {
+    async (to: AddressOrEns, tokenId: BigNumberish) => {
       return this.erc721.transfer.prepare(to, tokenId);
     },
   );
@@ -556,7 +571,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    * @internal
    */
   setApprovalForAll = buildTransactionFunction(
-    async (operator: string, approved: boolean) => {
+    async (operator: AddressOrEns, approved: boolean) => {
       return this.erc721.setApprovalForAll.prepare(operator, approved);
     },
   );
@@ -569,7 +584,7 @@ export class NFTDrop extends StandardErc721<PrebuiltNFTDrop> {
    * @internal
    */
   setApprovalForToken = buildTransactionFunction(
-    async (operator: string, tokenId: BigNumberish) => {
+    async (operator: AddressOrEns, tokenId: BigNumberish) => {
       return Transaction.fromContractWrapper({
         contractWrapper: this.contractWrapper,
         method: "approve",

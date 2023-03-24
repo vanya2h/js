@@ -5,8 +5,8 @@ import {
   fetchPreDeployMetadata,
 } from "../../common";
 import { getDeployArguments } from "../../common/deploy";
+import { resolveAddress } from "../../common/ens";
 import {
-  ChainId,
   EventType,
   getContractAddressByChainId,
   getNativeTokenByChainId,
@@ -21,6 +21,7 @@ import {
   NFTCollectionInitializer,
   NFTDropInitializer,
   PackInitializer,
+  PREBUILT_CONTRACTS_APPURI_MAP,
   PREBUILT_CONTRACTS_MAP,
   SignatureDropInitializer,
   SplitInitializer,
@@ -28,7 +29,7 @@ import {
   TokenInitializer,
   VoteInitializer,
 } from "../../contracts";
-import { SDKOptions } from "../../schema";
+import { Address, AddressOrEns, SDKOptions } from "../../schema";
 import {
   DeployEvent,
   DeployEvents,
@@ -123,7 +124,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployNFTCollection(
     metadata: NFTContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       NFTCollectionInitializer.contractType,
       metadata,
@@ -147,7 +148,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployNFTDrop(
     metadata: NFTContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       NFTDropInitializer.contractType,
       metadata,
@@ -171,7 +172,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deploySignatureDrop(
     metadata: NFTContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       SignatureDropInitializer.contractType,
       metadata,
@@ -195,7 +196,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployMultiwrap(
     metadata: MultiwrapContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       MultiwrapInitializer.contractType,
       metadata,
@@ -219,7 +220,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployEdition(
     metadata: NFTContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       EditionInitializer.contractType,
       metadata,
@@ -243,7 +244,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployEditionDrop(
     metadata: NFTContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       EditionDropInitializer.contractType,
       metadata,
@@ -267,7 +268,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployToken(
     metadata: TokenContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       TokenInitializer.contractType,
       metadata,
@@ -291,7 +292,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployTokenDrop(
     metadata: TokenContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       TokenDropInitializer.contractType,
       metadata,
@@ -315,7 +316,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployMarketplace(
     metadata: MarketplaceContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       MarketplaceInitializer.contractType,
       metadata,
@@ -339,7 +340,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployMarketplaceV3(
     metadata: MarketplaceV3ContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       MarketplaceV3Initializer.contractType,
       metadata,
@@ -363,7 +364,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployPack(
     metadata: NFTContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       PackInitializer.contractType,
       metadata,
@@ -397,7 +398,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deploySplit(
     metadata: SplitContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       SplitInitializer.contractType,
       metadata,
@@ -422,7 +423,7 @@ export class ContractDeployer extends RPCConnectionHandler {
    */
   public async deployVote(
     metadata: VoteContractDeployMetadata,
-  ): Promise<string> {
+  ): Promise<Address> {
     return await this.deployBuiltInContract(
       VoteInitializer.contractType,
       metadata,
@@ -446,13 +447,17 @@ export class ContractDeployer extends RPCConnectionHandler {
       DeploySchemaForPrebuiltContractType<TContractType>
     >,
     version: string = "latest",
-  ): Promise<string> {
+  ): Promise<Address> {
     const signer = this.getSigner();
     invariant(signer, "A signer is required to deploy contracts");
-    const parsedMetadata =
-      PREBUILT_CONTRACTS_MAP[contractType].schema.deploy.parse(
+
+    const parsedMetadata = {
+      app_uri: PREBUILT_CONTRACTS_APPURI_MAP[contractType],
+      ...(await PREBUILT_CONTRACTS_MAP[contractType].schema.deploy.parseAsync(
         contractMetadata,
-      );
+      )),
+    };
+
     if (this.hasLocalFactory()) {
       // old behavior for unit tests, deploy from local factory
       // parse version into the first number of the version string (or undefined if unparseable)
@@ -505,9 +510,10 @@ export class ContractDeployer extends RPCConnectionHandler {
     const deployMeta = await this.fetchAndCacheDeployMetadata(
       publishedContract.metadataUri,
     );
-    let implementationAddress =
-      deployMeta.extendedMetadata?.factoryDeploymentData
-        ?.implementationAddresses?.[activeChainId];
+    let implementationAddress = deployMeta.extendedMetadata
+      ?.factoryDeploymentData?.implementationAddresses?.[
+      activeChainId
+    ] as AddressOrEns;
 
     if (implementationAddress) {
       // implementation exists on the current chain, continue with normal flow
@@ -524,8 +530,11 @@ export class ContractDeployer extends RPCConnectionHandler {
           forceDirectDeploy: true,
         },
       );
-      return this.deployProxy(
+      const resolvedImplementationAddress = await resolveAddress(
         implementationAddress,
+      );
+      return this.deployProxy(
+        resolvedImplementationAddress,
         deployMeta.compilerMetadata.abi,
         "initialize",
         constructorParams,
@@ -554,12 +563,12 @@ export class ContractDeployer extends RPCConnectionHandler {
    * @param constructorParams the constructor params to pass to the contract
    */
   public async deployReleasedContract(
-    publisherAddress: string,
+    publisherAddress: AddressOrEns,
     contractName: string,
     constructorParams: any[],
     version = "latest",
     options?: DeployOptions,
-  ): Promise<string> {
+  ): Promise<Address> {
     const publishedContract = await this.fetchPublishedContractFromPolygon(
       publisherAddress,
       contractName,
@@ -581,24 +590,29 @@ export class ContractDeployer extends RPCConnectionHandler {
    * @param initializerArgs
    */
   public async deployViaFactory(
-    factoryAddress: string,
-    implementationAddress: string,
+    factoryAddress: AddressOrEns,
+    implementationAddress: AddressOrEns,
     implementationAbi: ContractInterface,
     initializerFunction: string,
     initializerArgs: any[],
-  ): Promise<string> {
+  ): Promise<Address> {
+    const resolvedFactoryAddress = await resolveAddress(factoryAddress);
+    const resolvedImplementationAddress = await resolveAddress(
+      implementationAddress,
+    );
+
     const signer = this.getSigner();
     invariant(signer, "signer is required");
     // TODO only require factory interface here - IProxyFactory
     const proxyFactory = new ContractFactory(
-      factoryAddress,
+      resolvedFactoryAddress,
       this.getSignerOrProvider(),
       this.storage,
       this.options,
     );
     proxyFactory.on(EventType.Transaction, this.transactionListener);
     const deployedAddress = await proxyFactory.deployProxyByImplementation(
-      implementationAddress,
+      resolvedImplementationAddress,
       implementationAbi,
       initializerFunction,
       initializerArgs,
@@ -616,11 +630,12 @@ export class ContractDeployer extends RPCConnectionHandler {
    * @param initializerArgs
    */
   public async deployProxy(
-    implementationAddress: string,
+    implementationAddress: AddressOrEns,
     implementationAbi: ContractInterface,
     initializerFunction: string,
     initializerArgs: any[],
-  ): Promise<string> {
+  ): Promise<Address> {
+    const resolvedAddress = await resolveAddress(implementationAddress);
     const encodedInitializer = Contract.getInterface(
       implementationAbi,
     ).encodeFunctionData(initializerFunction, initializerArgs);
@@ -630,7 +645,7 @@ export class ContractDeployer extends RPCConnectionHandler {
     return this.deployContractWithAbi(
       TWProxy__factory.abi,
       TWProxy__factory.bytecode,
-      [implementationAddress, encodedInitializer],
+      [resolvedAddress, encodedInitializer],
     );
   }
 
@@ -747,11 +762,14 @@ export class ContractDeployer extends RPCConnectionHandler {
         extendedMetadata.factoryDeploymentData.implementationAddresses,
         "implementationAddresses is required",
       );
-      const implementationAddress =
-        extendedMetadata.factoryDeploymentData.implementationAddresses[chainId];
+      const implementationAddress = extendedMetadata.factoryDeploymentData
+        .implementationAddresses[chainId] as AddressOrEns;
+      const resolvedImplementationAddress = await resolveAddress(
+        implementationAddress,
+      );
 
       invariant(
-        implementationAddress,
+        resolvedImplementationAddress,
         `implementationAddress not found for chainId '${chainId}'`,
       );
       invariant(
@@ -775,15 +793,16 @@ export class ContractDeployer extends RPCConnectionHandler {
           extendedMetadata.factoryDeploymentData.factoryAddresses,
           "isDeployableViaFactory is true so factoryAddresses is required",
         );
-        const factoryAddress =
-          extendedMetadata.factoryDeploymentData.factoryAddresses[chainId];
+        const factoryAddress = extendedMetadata.factoryDeploymentData
+          .factoryAddresses[chainId] as AddressOrEns;
         invariant(
           factoryAddress,
           `isDeployableViaFactory is true and factoryAddress not found for chainId '${chainId}'`,
         );
+        const resolvedFactoryAddress = await resolveAddress(factoryAddress);
         return await this.deployViaFactory(
-          factoryAddress,
-          implementationAddress,
+          resolvedFactoryAddress,
+          resolvedImplementationAddress,
           compilerMetadata.abi,
           extendedMetadata.factoryDeploymentData
             .implementationInitializerFunction,
@@ -792,7 +811,7 @@ export class ContractDeployer extends RPCConnectionHandler {
       } else if (extendedMetadata.isDeployableViaProxy) {
         // deploy a proxy directly
         return await this.deployProxy(
-          implementationAddress,
+          resolvedImplementationAddress,
           compilerMetadata.abi,
           extendedMetadata.factoryDeploymentData
             .implementationInitializerFunction,
@@ -831,7 +850,7 @@ export class ContractDeployer extends RPCConnectionHandler {
     abi: ContractInterface,
     bytecode: BytesLike | { object: string },
     constructorParams: Array<any>,
-  ): Promise<string> {
+  ): Promise<Address> {
     const signer = this.getSigner();
     invariant(signer, "Signer is required to deploy contracts");
     const deployer = await new ethers.ContractFactory(abi, bytecode)
@@ -903,16 +922,17 @@ export class ContractDeployer extends RPCConnectionHandler {
   }
 
   private async fetchPublishedContractFromPolygon(
-    publisherAddress: string,
+    publisherAddress: AddressOrEns,
     contractName: string,
     version: string,
   ) {
+    const address = await resolveAddress(publisherAddress);
     const publishedContract = await new ThirdwebSDK("polygon")
       .getPublisher()
-      .getVersion(publisherAddress, contractName, version);
+      .getVersion(address, contractName, version);
     if (!publishedContract) {
       throw new Error(
-        `No published contract found for '${contractName}' at version '${version}' by '${publisherAddress}'`,
+        `No published contract found for '${contractName}' at version '${version}' by '${address}'`,
       );
     }
     return publishedContract;
@@ -925,12 +945,14 @@ export class ContractDeployer extends RPCConnectionHandler {
     switch (contractType) {
       case MarketplaceInitializer.contractType:
       case MultiwrapInitializer.contractType:
-        const nativeTokenWrapperAddress = getNativeTokenByChainId(
-          ChainId.Hardhat,
-        ).wrapped.address;
+        const nativeTokenWrapperAddress =
+          getNativeTokenByChainId(chainId)?.wrapped?.address ||
+          ethers.constants.AddressZero;
         return [nativeTokenWrapperAddress];
       case PackInitializer.contractType:
-        const addr = getNativeTokenByChainId(chainId).wrapped.address;
+        const addr =
+          getNativeTokenByChainId(chainId).wrapped.address ||
+          ethers.constants.AddressZero;
         return [addr, ethers.constants.AddressZero];
       default:
         return [];

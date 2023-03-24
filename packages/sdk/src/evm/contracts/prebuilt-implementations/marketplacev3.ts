@@ -5,22 +5,25 @@ import {
   FEATURE_OFFERS,
 } from "../../constants/thirdweb-features";
 import {
+  ContractAppURI,
+  NetworkInput,
   ContractEncoder,
   ContractEvents,
   ContractInterceptor,
   ContractMetadata,
   ContractPlatformFee,
   ContractRoles,
-  GasCostEstimator,
-  MarketplaceV3DirectListings,
-  MarketplaceV3EnglishAuctions,
-  MarketplaceV3Offers,
-  Transaction,
-  NetworkInput,
 } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
 import { UpdateableNetwork } from "../../core/interfaces/contract";
-import { Abi, MarketplaceContractSchema, SDKOptions } from "../../schema";
+import {
+  Abi,
+  AbiInput,
+  AbiSchema,
+  SDKOptions,
+  Address,
+  MarketplaceContractSchema,
+} from "../../schema";
 import type {
   MarketplaceV3 as MarketplaceV3Contract,
   DirectListingsLogic,
@@ -59,6 +62,8 @@ export class MarketplaceV3 implements UpdateableNetwork {
     MarketplaceV3Contract,
     typeof MarketplaceContractSchema
   >;
+
+  public app: ContractAppURI<MarketplaceV3Contract>;
   public roles: ContractRoles<
     MarketplaceV3Contract,
     (typeof MarketplaceV3.contractRoles)[number]
@@ -201,7 +206,7 @@ export class MarketplaceV3 implements UpdateableNetwork {
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<MarketplaceV3Contract>(
       network,
@@ -211,12 +216,18 @@ export class MarketplaceV3 implements UpdateableNetwork {
     ),
   ) {
     this._chainId = chainId;
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi || []);
     this.contractWrapper = contractWrapper;
     this.storage = storage;
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       MarketplaceContractSchema,
+      this.storage,
+    );
+
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
       this.storage,
     );
     this.roles = new ContractRoles(
@@ -234,7 +245,7 @@ export class MarketplaceV3 implements UpdateableNetwork {
     this.contractWrapper.updateSignerOrProvider(network);
   }
 
-  getAddress(): string {
+  getAddress(): Address {
     return this.contractWrapper.readContract.address;
   }
 
@@ -278,7 +289,7 @@ export class MarketplaceV3 implements UpdateableNetwork {
       )
     ) {
       return new MarketplaceV3DirectListings(
-        this.contractWrapper as unknown as ContractWrapper<DirectListingsLogic>,
+        this.contractWrapper,
         this.storage,
       );
     }
@@ -293,8 +304,7 @@ export class MarketplaceV3 implements UpdateableNetwork {
       )
     ) {
       return new MarketplaceV3EnglishAuctions(
-        this
-          .contractWrapper as unknown as ContractWrapper<EnglishAuctionsLogic>,
+        this.contractWrapper,
         this.storage,
       );
     }
@@ -303,10 +313,7 @@ export class MarketplaceV3 implements UpdateableNetwork {
 
   private detectOffers() {
     if (detectContractFeature<OffersLogic>(this.contractWrapper, "Offers")) {
-      return new MarketplaceV3Offers(
-        this.contractWrapper as unknown as ContractWrapper<OffersLogic>,
-        this.storage,
-      );
+      return new MarketplaceV3Offers(this.contractWrapper, this.storage);
     }
     return undefined;
   }

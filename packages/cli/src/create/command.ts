@@ -47,7 +47,6 @@ export async function twCreate(
     if (options.typescript) {
       language = "typescript";
     }
-
     if (options.javascript) {
       language = "javascript";
     }
@@ -55,23 +54,18 @@ export async function twCreate(
     if (options.next) {
       framework = "next";
     }
-
     if (options.cra) {
       framework = "cra";
     }
-
     if (options.vite) {
       framework = "vite";
     }
-
     if (options.node) {
       framework = "node";
     }
-
     if (options.express) {
       framework = "express";
     }
-
     if (options.reactNative) {
       framework = "react-native";
     }
@@ -79,7 +73,6 @@ export async function twCreate(
     if (options.solana) {
       chain = "solana";
     }
-
     if (options.evm) {
       chain = "evm";
     }
@@ -89,7 +82,6 @@ export async function twCreate(
     if (options.forge) {
       framework = "forge";
     }
-
     if (options.hardhat) {
       framework = "hardhat";
     }
@@ -126,7 +118,6 @@ export async function twCreate(
     if (options.forge) {
       framework = "forge";
     }
-
     if (options.hardhat) {
       framework = "hardhat";
     }
@@ -183,10 +174,10 @@ export async function twCreate(
           const validation = validateNpmName(
             path.basename(path.resolve(name.toLowerCase())),
           );
-          if (validation.valid) {
-            return true;
-          }
-          return "Invalid project name: " + validation.problems?.[0];
+          return (
+            validation.valid ||
+            "Invalid project name: " + validation.problems?.[0]
+          );
         },
       });
 
@@ -260,18 +251,34 @@ export async function twCreate(
       }
 
       if (projectType === "app" && !language) {
-        const res = await prompts({
-          type: "select",
-          name: "language",
-          message: CREATE_MESSAGES.language,
-          choices: [
-            { title: "JavaScript", value: "javascript" },
-            { title: "TypeScript", value: "typescript" },
-          ],
-        });
+        if (framework === "react-native") {
+          const res = await prompts({
+            type: "select",
+            name: "project",
+            message: CREATE_MESSAGES.reactNative,
+            choices: [
+              { title: "Expo Project", value: "expo" },
+              { title: "React Native CLI", value: "typescript" },
+            ],
+          });
 
-        if (typeof res.language === "string") {
-          language = res.language.trim();
+          if (typeof res.project === "string") {
+            language = res.project.trim();
+          }
+        } else {
+          const res = await prompts({
+            type: "select",
+            name: "language",
+            message: CREATE_MESSAGES.language,
+            choices: [
+              { title: "JavaScript", value: "javascript" },
+              { title: "TypeScript", value: "typescript" },
+            ],
+          });
+
+          if (typeof res.language === "string") {
+            language = res.language.trim();
+          }
         }
       }
 
@@ -442,7 +449,7 @@ export async function twCreate(
     : getPkgManager();
 
   const template =
-    typeof options.template === "string" && options.template.trim();
+    typeof options.template === "string" ? options.template.trim() : undefined;
   try {
     if (projectType === "app") {
       await createApp({

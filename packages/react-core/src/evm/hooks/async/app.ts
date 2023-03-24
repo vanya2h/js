@@ -8,8 +8,13 @@ import {
   invalidateContractAndBalances,
 } from "../../utils/cache-keys";
 import { useQueryWithNetwork } from "../query-utils/useQueryWithNetwork";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SmartContract } from "@thirdweb-dev/sdk";
+import {
+  useMutation,
+  UseMutationResult,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { ValidContractInstance } from "@thirdweb-dev/sdk";
+import type { providers } from "ethers";
 import invariant from "tiny-invariant";
 
 /**
@@ -25,15 +30,15 @@ import invariant from "tiny-invariant";
  * @twfeature AppURI
  * @beta
  */
-export function useAppURI<TContract extends SmartContract>(
+export function useAppURI<TContract extends ValidContractInstance>(
   contract: RequiredParam<TContract>,
 ) {
   return useQueryWithNetwork<string>(
     cacheKeys.contract.app.get(contract?.getAddress()),
     async () => {
       requiredParamInvariant(contract, "Contract is required");
-      invariant(contract.appURI, "Contract does not support appURI");
-      return await contract.appURI.get();
+      invariant(contract.app, "Contract does not support app");
+      return await contract.app.get();
     },
     {
       enabled: !!contract,
@@ -72,15 +77,30 @@ export function useAppURI<TContract extends SmartContract>(
  * @twfeature AppUR
  * @beta
  */
-export function useSetAppURI(contract: RequiredParam<SmartContract>) {
+export function useSetAppURI(
+  contract: RequiredParam<ValidContractInstance>,
+): UseMutationResult<
+  Omit<
+    {
+      receipt: providers.TransactionReceipt;
+      data: () => Promise<unknown>;
+    },
+    "data"
+  >,
+  unknown,
+  {
+    uri: string;
+  },
+  unknown
+> {
   const queryClient = useQueryClient();
   const contractAddress = contract?.getAddress();
   const activeChainId = useSDKChainId();
   return useMutation(
     (params: { uri: string }) => {
       requiredParamInvariant(contract, "Contract is required");
-      invariant(contract.appURI, "Contract does not support appURI");
-      return contract.appURI.set(params.uri);
+      invariant(contract.app, "Contract does not support app");
+      return contract.app.set(params.uri);
     },
     {
       onSettled: () =>

@@ -6,7 +6,9 @@ import { info, logger, spinner } from "../core/helpers/logger";
 import { CacheEntry } from "../core/types/cache";
 import { twCreate } from "../create/command";
 import { deploy } from "../deploy";
+import { generate } from "../generate/command";
 import { findPackageInstallation } from "../helpers/detect-local-packages";
+import { install } from "../install/command";
 import { upload } from "../storage/command";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import chalk from "chalk";
@@ -54,10 +56,7 @@ const main = async () => {
         if (lastCheckCache.isCached) {
           const lastVersionCheck = new Date(lastCheckCache.value);
           // Don't check for updates if already checked within past 24 hours
-          if (
-            new Date().getTime() - lastVersionCheck.getTime() <
-            1000 * 60 * 60 * 24
-          ) {
+          if (Date.now() - lastVersionCheck.getTime() < 1000 * 60 * 60 * 24) {
             shouldCheckVersion = false;
           }
         }
@@ -115,7 +114,7 @@ const main = async () => {
                   `Now using CLI version ${versionInfo.latest}. Continuing execution...`,
                 );
 
-                await new Promise((done, failed) => {
+                await new Promise((resolve, reject) => {
                   const shell = spawn(
                     `npx --yes thirdweb@latest ${process.argv
                       .slice(2)
@@ -125,9 +124,9 @@ const main = async () => {
                   );
                   shell.on("close", (code) => {
                     if (code === 0) {
-                      done("");
+                      resolve("");
                     } else {
-                      failed();
+                      reject();
                     }
                   });
                 });
@@ -160,14 +159,12 @@ const main = async () => {
                   process.exit(1);
               }
 
-              await new Promise((done, failed) => {
+              await new Promise((resolve, reject) => {
                 exec(command, (err, stdout, stderr) => {
                   if (err) {
-                    failed(err);
-                    return;
+                    return reject(err);
                   }
-
-                  done({ stdout, stderr });
+                  resolve({ stdout, stderr });
                 });
               });
 
@@ -181,7 +178,7 @@ const main = async () => {
                 !installation.isGlobal || installation.packageManager === "npm"
                   ? `npx thirdweb`
                   : `thirdweb`;
-              await new Promise((done, failed) => {
+              await new Promise((resolve, reject) => {
                 const shell = spawn(
                   `${executionCommand} ${process.argv.slice(2).join(" ")}`,
                   [],
@@ -189,9 +186,9 @@ const main = async () => {
                 );
                 shell.on("close", (code) => {
                   if (code === 0) {
-                    done("");
+                    resolve("");
                   } else {
-                    failed();
+                    reject();
                   }
                 });
               });
@@ -201,6 +198,17 @@ const main = async () => {
           }
         },
       );
+    });
+
+  program
+    .command("install [projectPath]")
+    .description(
+      "Install thirdweb into your project. If no path is specified, the current directory will be used.",
+    )
+    .option("--nightly", "Install the nightly version of packages.")
+    .option("--dev", "Install the dev version of packages")
+    .action(async (path, options) => {
+      await install(path, options);
     });
 
   program
@@ -283,10 +291,14 @@ const main = async () => {
     )
     .option("--app", "Deploy a web app to decentralized storage")
     .option("--contract", "Deploy a smart contract to blockchains")
+    .option(
+      "--dynamic",
+      "Deploy a dynamic smart contract made up of extensions to blockchains",
+    )
     .action(async (options) => {
       const url = await deploy(options);
       if (url) {
-        open(url);
+        await open(url);
       }
     });
 
@@ -315,7 +327,7 @@ const main = async () => {
           url.toString(),
         )}`,
       );
-      open(url.toString());
+      await open(url.toString());
     });
 
   program
@@ -342,7 +354,7 @@ const main = async () => {
           url.toString(),
         )}`,
       );
-      open(url.toString());
+      await open(url.toString());
     });
 
   program
@@ -392,6 +404,20 @@ const main = async () => {
     .option("-a, --all", "run detection on all contracts")
     .action(async (options) => {
       await detectExtensions(options);
+    });
+
+  program
+    .command("generate")
+    .description(
+      "Preload ABIs and generate types for your smart contract to strongly type the thirdweb SDK",
+    )
+    .option("-p, --path <project-path>", "path to project", ".")
+    .option(
+      "-d, --deployer <deployer-address>",
+      "address of the contract deployer",
+    )
+    .action(async (options) => {
+      await generate(options);
     });
 
   await program.parseAsync();

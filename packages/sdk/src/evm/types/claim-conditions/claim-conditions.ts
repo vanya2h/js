@@ -1,3 +1,4 @@
+import { Address } from "../../schema";
 import {
   ClaimConditionInputSchema,
   ClaimConditionOutputSchema,
@@ -53,9 +54,9 @@ export type ClaimVerification = {
   proofs: BytesLike[];
   maxClaimable: BigNumber;
   price: BigNumber;
-  currencyAddress: string;
+  currencyAddress: Address;
   priceInProof: BigNumber;
-  currencyAddressInProof: string;
+  currencyAddressInProof: Address;
 };
 
 export type ClaimConditionsForToken = {
@@ -71,7 +72,7 @@ export type ClaimOptions = {
   /**
    * The currency to pay for each token claimed, defaults to NATIVE_TOKEN_ADDRESS for native currency
    */
-  currencyAddress?: string;
+  currencyAddress?: Address;
   /**
    * Whether to check the ERC20 allowance of the sender, defaults to true
    */

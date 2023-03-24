@@ -1,7 +1,7 @@
 import { NFT } from "../../../core/schema/nft";
 import { buildTransactionFunction } from "../../common/transactions";
 import { FEATURE_NFT_CLAIM_CONDITIONS_V2 } from "../../constants/erc721-features";
-import { CustomContractSchema } from "../../schema";
+import { AddressOrEns, CustomContractSchema } from "../../schema";
 import { ClaimOptions } from "../../types";
 import { BaseClaimConditionERC721 } from "../../types/eips";
 import { DetectableFeature } from "../interfaces/DetectableFeature";
@@ -99,7 +99,7 @@ export class Erc721ClaimableWithConditions implements DetectableFeature {
    */
   to = buildTransactionFunction(
     async (
-      destinationAddress: string,
+      destinationAddress: AddressOrEns,
       quantity: BigNumberish,
       options?: ClaimOptions,
     ): Promise<Transaction<TransactionResultWithId<NFT>[]>> => {

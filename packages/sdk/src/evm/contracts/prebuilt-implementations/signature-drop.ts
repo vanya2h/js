@@ -3,10 +3,10 @@ import {
   QueryAllParams,
 } from "../../../core/schema/QueryParams";
 import { NFT, NFTMetadata, NFTMetadataOrUri } from "../../../core/schema/nft";
-import { getRoleHash } from "../../common";
-import { buildTransactionFunction } from "../../common/transactions";
+import { getRoleHash, buildTransactionFunction } from "../../common";
 import { FEATURE_NFT_REVEALABLE } from "../../constants/erc721-features";
 import {
+  ContractAppURI,
   ContractEncoder,
   ContractEvents,
   ContractInterceptor,
@@ -18,18 +18,25 @@ import {
   ContractPrimarySale,
   DelayedReveal,
   DropClaimConditions,
-  Erc721,
   StandardErc721,
   Erc721WithQuantitySignatureMintable,
   GasCostEstimator,
   Transaction,
-  NetworkInput,
-  TransactionResultWithId,
 } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
+import { NetworkInput, TransactionResultWithId } from "../../core/types";
 import { PaperCheckout } from "../../integrations/thirdweb-checkout";
-import { Abi, DropErc721ContractSchema, SDKOptions } from "../../schema";
-import { ClaimOptions, UploadProgressEvent } from "../../types";
+import {
+  Address,
+  AddressOrEns,
+  Abi,
+  AbiInput,
+  AbiSchema,
+  SDKOptions,
+} from "../../schema";
+import { DropErc721ContractSchema } from "../../schema/contracts/drop-erc721";
+import { ClaimOptions } from "../../types/claim-conditions/claim-conditions";
+import { UploadProgressEvent } from "../../types/events";
 import type { SignatureDrop as SignatureDropContract } from "@thirdweb-dev/contracts-js";
 import { ThirdwebStorage } from "@thirdweb-dev/storage";
 import { BigNumber, BigNumberish, CallOverrides, constants } from "ethers";
@@ -54,7 +61,6 @@ export class SignatureDrop extends StandardErc721<SignatureDropContract> {
   static contractRoles = ["admin", "minter", "transfer"] as const;
 
   public abi: Abi;
-  public erc721: Erc721<SignatureDropContract>;
   public owner: ContractOwner<SignatureDropContract>;
   public encoder: ContractEncoder<SignatureDropContract>;
   public estimator: GasCostEstimator<SignatureDropContract>;
@@ -62,6 +68,7 @@ export class SignatureDrop extends StandardErc721<SignatureDropContract> {
     SignatureDropContract,
     typeof DropErc721ContractSchema
   >;
+  public app: ContractAppURI<SignatureDropContract>;
   public sales: ContractPrimarySale<SignatureDropContract>;
   public platformFees: ContractPlatformFee<SignatureDropContract>;
   public events: ContractEvents<SignatureDropContract>;
@@ -169,7 +176,7 @@ export class SignatureDrop extends StandardErc721<SignatureDropContract> {
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<SignatureDropContract>(
       network,
@@ -179,10 +186,16 @@ export class SignatureDrop extends StandardErc721<SignatureDropContract> {
     ),
   ) {
     super(contractWrapper, storage, chainId);
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi || []);
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       DropErc721ContractSchema,
+      this.storage,
+    );
+
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
       this.storage,
     );
     this.roles = new ContractRoles(
@@ -196,7 +209,6 @@ export class SignatureDrop extends StandardErc721<SignatureDropContract> {
     this.events = new ContractEvents(this.contractWrapper);
     this.platformFees = new ContractPlatformFee(this.contractWrapper);
     this.interceptor = new ContractInterceptor(this.contractWrapper);
-    this.erc721 = new Erc721(this.contractWrapper, this.storage, chainId);
     this.claimConditions = new DropClaimConditions(
       this.contractWrapper,
       this.metadata,
@@ -228,7 +240,7 @@ export class SignatureDrop extends StandardErc721<SignatureDropContract> {
     this.contractWrapper.updateSignerOrProvider(network);
   }
 
-  getAddress(): string {
+  getAddress(): Address {
     return this.contractWrapper.readContract.address;
   }
 
@@ -407,7 +419,7 @@ export class SignatureDrop extends StandardErc721<SignatureDropContract> {
    * @deprecated Use `contract.erc721.claim.prepare(...args)` instead
    */
   public async getClaimTransaction(
-    destinationAddress: string,
+    destinationAddress: AddressOrEns,
     quantity: BigNumberish,
     options?: ClaimOptions,
   ): Promise<Transaction> {
@@ -442,7 +454,7 @@ export class SignatureDrop extends StandardErc721<SignatureDropContract> {
    */
   claimTo = buildTransactionFunction(
     async (
-      destinationAddress: string,
+      destinationAddress: AddressOrEns,
       quantity: BigNumberish,
       options?: ClaimOptions,
     ): Promise<Transaction<TransactionResultWithId<NFT>[]>> => {

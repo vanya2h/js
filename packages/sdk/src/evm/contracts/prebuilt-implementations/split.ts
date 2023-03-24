@@ -1,19 +1,27 @@
 import { fetchCurrencyValue } from "../../common";
+import { resolveAddress } from "../../common/ens";
+import { buildTransactionFunction } from "../../common/transactions";
 import {
+  ContractAppURI,
   ContractEncoder,
   ContractEvents,
   ContractInterceptor,
   ContractMetadata,
   ContractRoles,
-  GasCostEstimator,
-  Transaction,
   NetworkInput,
-  TransactionResult,
 } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
 import { UpdateableNetwork } from "../../core/interfaces/contract";
-import { Abi, SplitsContractSchema, SDKOptions } from "../../schema";
-import { CurrencyValue, SplitRecipient } from "../../types";
+import {
+  Address,
+  AddressOrEns,
+  Abi,
+  AbiInput,
+  AbiSchema,
+  SplitsContractSchema,
+  SDKOptions,
+} from "../../schema";
+import { SplitRecipient, CurrencyValue } from "../../types";
 import type {
   IERC20,
   Split as SplitContract,
@@ -44,6 +52,8 @@ export class Split implements UpdateableNetwork {
 
   public abi: Abi;
   public metadata: ContractMetadata<SplitContract, typeof SplitsContractSchema>;
+
+  public app: ContractAppURI<SplitContract>;
   public encoder: ContractEncoder<SplitContract>;
   public estimator: GasCostEstimator<SplitContract>;
   public events: ContractEvents<SplitContract>;
@@ -66,7 +76,7 @@ export class Split implements UpdateableNetwork {
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<SplitContract>(
       network,
@@ -76,12 +86,18 @@ export class Split implements UpdateableNetwork {
     ),
   ) {
     this._chainId = chainId;
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi || []);
     this.contractWrapper = contractWrapper;
     this.storage = storage;
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       SplitsContractSchema,
+      this.storage,
+    );
+
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
       this.storage,
     );
     this.roles = new ContractRoles(this.contractWrapper, Split.contractRoles);
@@ -95,7 +111,7 @@ export class Split implements UpdateableNetwork {
     this.contractWrapper.updateSignerOrProvider(network);
   }
 
-  getAddress(): string {
+  getAddress(): Address {
     return this.contractWrapper.readContract.address;
   }
 
@@ -164,13 +180,15 @@ export class Split implements UpdateableNetwork {
    * @param tokenAddress - The address of the currency to check the balances in.
    * @returns A map of recipient addresses to their balances in the specified currency.
    */
-  public async balanceOfTokenAllRecipients(tokenAddress: string) {
+  public async balanceOfTokenAllRecipients(tokenAddress: AddressOrEns) {
+    const resolvedToken = await resolveAddress(tokenAddress);
+
     const recipients = await this.getAllRecipients();
     const balances: { [key: string]: CurrencyValue } = {};
     for (const recipient of recipients) {
       balances[recipient.address] = await this.balanceOfToken(
         recipient.address,
-        tokenAddress,
+        resolvedToken,
       );
     }
     return balances;
@@ -189,7 +207,8 @@ export class Split implements UpdateableNetwork {
    * console.log(funds);
    * ```
    */
-  public async balanceOf(address: string): Promise<BigNumber> {
+  public async balanceOf(address: AddressOrEns): Promise<BigNumber> {
+    const resolvedAddress = await resolveAddress(address);
     const walletBalance =
       await this.contractWrapper.readContract.provider.getBalance(
         this.getAddress(),
@@ -200,9 +219,11 @@ export class Split implements UpdateableNetwork {
     const totalReceived = walletBalance.add(totalReleased);
 
     return this._pendingPayment(
-      address,
+      resolvedAddress,
       totalReceived,
-      await this.contractWrapper.readContract["released(address)"](address),
+      await this.contractWrapper.readContract["released(address)"](
+        resolvedAddress,
+      ),
     );
   }
 
@@ -222,30 +243,33 @@ export class Split implements UpdateableNetwork {
    * ```
    */
   public async balanceOfToken(
-    walletAddress: string,
-    tokenAddress: string,
+    walletAddress: AddressOrEns,
+    tokenAddress: AddressOrEns,
   ): Promise<CurrencyValue> {
+    const resolvedToken = await resolveAddress(tokenAddress);
+    const resolvedWallet = await resolveAddress(walletAddress);
+
     const erc20 = new Contract(
-      tokenAddress,
+      resolvedToken,
       ERC20Abi,
       this.contractWrapper.getProvider(),
     ) as IERC20;
     const walletBalance = await erc20.balanceOf(this.getAddress());
     const totalReleased = await this.contractWrapper.readContract[
       "totalReleased(address)"
-    ](tokenAddress);
+    ](resolvedToken);
     const totalReceived = walletBalance.add(totalReleased);
     const value = await this._pendingPayment(
-      walletAddress,
+      resolvedWallet,
       totalReceived,
       await this.contractWrapper.readContract["released(address,address)"](
-        tokenAddress,
-        walletAddress,
+        resolvedToken,
+        resolvedWallet,
       ),
     );
     return await fetchCurrencyValue(
       this.contractWrapper.getProvider(),
-      tokenAddress,
+      resolvedToken,
       value,
     );
   }
@@ -255,15 +279,17 @@ export class Split implements UpdateableNetwork {
    * @param address - the address to check percentage of
    */
   public async getRecipientSplitPercentage(
-    address: string,
+    address: AddressOrEns,
   ): Promise<SplitRecipient> {
+    const resolvedAddress = await resolveAddress(address);
+
     const [totalShares, walletsShares] = await Promise.all([
       this.contractWrapper.readContract.totalShares(),
       this.contractWrapper.readContract.shares(address),
     ]);
     // We convert to basis points to avoid floating point loss of precision
     return {
-      address,
+      address: resolvedAddress,
       splitPercentage:
         walletsShares.mul(BigNumber.from(1e7)).div(totalShares).toNumber() /
         1e5,
@@ -287,13 +313,13 @@ export class Split implements UpdateableNetwork {
    *
    * @param walletAddress - The address to distributes the amount to
    */
-  public async withdraw(walletAddress: string): Promise<TransactionResult> {
-    return {
-      receipt: await this.contractWrapper.sendTransaction("release(address)", [
-        walletAddress,
-      ]),
-    };
-  }
+  withdraw = buildTransactionFunction(async (walletAddress: AddressOrEns) => {
+    return Transaction.fromContractWrapper({
+      contractWrapper: this.contractWrapper,
+      method: "release(address)",
+      args: [await resolveAddress(walletAddress)],
+    });
+  });
 
   /**
    * Triggers a transfer to account of the amount of a given currency they are owed.
@@ -301,17 +327,18 @@ export class Split implements UpdateableNetwork {
    * @param walletAddress - The address to distributes the amount to
    * @param tokenAddress - The address of the currency contract to distribute funds
    */
-  public async withdrawToken(
-    walletAddress: string,
-    tokenAddress: string,
-  ): Promise<TransactionResult> {
-    return {
-      receipt: await this.contractWrapper.sendTransaction(
-        "release(address,address)",
-        [tokenAddress, walletAddress],
-      ),
-    };
-  }
+  withdrawToken = buildTransactionFunction(
+    async (walletAddress: AddressOrEns, tokenAddress: AddressOrEns) => {
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "release(address,address)",
+        args: [
+          await resolveAddress(tokenAddress),
+          await resolveAddress(walletAddress),
+        ],
+      });
+    },
+  );
 
   /**
    * Distribute Funds
@@ -323,11 +350,13 @@ export class Split implements UpdateableNetwork {
    * await contract.distribute();
    * ```
    */
-  public async distribute(): Promise<TransactionResult> {
-    return {
-      receipt: await this.contractWrapper.sendTransaction("distribute()", []),
-    };
-  }
+  distribute = buildTransactionFunction(async () => {
+    return Transaction.fromContractWrapper({
+      contractWrapper: this.contractWrapper,
+      method: "distribute()",
+      args: [],
+    });
+  });
 
   /**
    * Distribute Funds
@@ -343,28 +372,29 @@ export class Split implements UpdateableNetwork {
    *
    * @param tokenAddress - The address of the currency contract to distribute funds
    */
-  public async distributeToken(
-    tokenAddress: string,
-  ): Promise<TransactionResult> {
-    return {
-      receipt: await this.contractWrapper.sendTransaction(
-        "distribute(address)",
-        [tokenAddress],
-      ),
-    };
-  }
+  distributeToken = buildTransactionFunction(
+    async (tokenAddress: AddressOrEns) => {
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "distribute(address)",
+        args: [await resolveAddress(tokenAddress)],
+      });
+    },
+  );
 
   /** ******************************
    * PRIVATE FUNCTIONS
    *******************************/
 
   private async _pendingPayment(
-    address: string,
+    address: AddressOrEns,
     totalReceived: BigNumber,
     alreadyReleased: BigNumber,
   ): Promise<BigNumber> {
     const addressReceived = totalReceived.mul(
-      await this.contractWrapper.readContract.shares(address),
+      await this.contractWrapper.readContract.shares(
+        await resolveAddress(address),
+      ),
     );
     const totalRoyaltyAvailable = addressReceived.div(
       await this.contractWrapper.readContract.totalShares(),

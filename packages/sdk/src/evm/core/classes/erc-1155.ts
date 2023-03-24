@@ -7,6 +7,7 @@ import {
   hasFunction,
   NotFoundError,
 } from "../../common";
+import { resolveAddress } from "../../common/ens";
 import { FALLBACK_METADATA, fetchTokenMetadata } from "../../common/nft";
 import { buildTransactionFunction } from "../../common/transactions";
 import {
@@ -21,7 +22,7 @@ import {
   FEATURE_EDITION_CLAIM_CONDITIONS_V2,
   FEATURE_EDITION_LAZY_MINTABLE_V2,
 } from "../../constants/erc1155-features";
-import { EditionMetadataOrUri } from "../../schema";
+import { Address, AddressOrEns } from "../../schema";
 import { AirdropInputSchema } from "../../schema/contracts/common/airdrop";
 import { ClaimOptions, UploadProgressEvent, AirdropInput } from "../../types";
 import {
@@ -102,7 +103,7 @@ export class Erc1155<
     this.contractWrapper.updateSignerOrProvider(network);
   }
 
-  getAddress(): string {
+  getAddress(): Address {
     return this.contractWrapper.readContract.address;
   }
 
@@ -135,7 +136,7 @@ export class Erc1155<
       owner: ethers.constants.AddressZero,
       metadata,
       type: "ERC1155",
-      supply: supply.toNumber(),
+      supply: supply.toString(),
     };
   }
 
@@ -169,10 +170,13 @@ export class Erc1155<
    * @twfeature ERC1155
    */
   public async balanceOf(
-    address: string,
+    address: AddressOrEns,
     tokenId: BigNumberish,
   ): Promise<BigNumber> {
-    return await this.contractWrapper.readContract.balanceOf(address, tokenId);
+    return await this.contractWrapper.readContract.balanceOf(
+      await resolveAddress(address),
+      tokenId,
+    );
   }
 
   /**
@@ -190,10 +194,13 @@ export class Erc1155<
    * @param address - the wallet address
    * @param operator - the operator address
    */
-  public async isApproved(address: string, operator: string): Promise<boolean> {
+  public async isApproved(
+    address: AddressOrEns,
+    operator: AddressOrEns,
+  ): Promise<boolean> {
     return await this.contractWrapper.readContract.isApprovedForAll(
-      address,
-      operator,
+      await resolveAddress(address),
+      await resolveAddress(operator),
     );
   }
 
@@ -214,7 +221,7 @@ export class Erc1155<
    */
   transfer = buildTransactionFunction(
     async (
-      to: string,
+      to: AddressOrEns,
       tokenId: BigNumberish,
       amount: BigNumberish,
       data: BytesLike = [0],
@@ -223,7 +230,7 @@ export class Erc1155<
       return Transaction.fromContractWrapper({
         contractWrapper: this.contractWrapper,
         method: "safeTransferFrom",
-        args: [from, to, tokenId, amount, data],
+        args: [from, await resolveAddress(to), tokenId, amount, data],
       });
     },
   );
@@ -291,7 +298,7 @@ export class Erc1155<
 
       const balanceOf = await this.balanceOf(from, tokenId);
 
-      const input = AirdropInputSchema.parse(addresses);
+      const input = await AirdropInputSchema.parseAsync(addresses);
 
       const totalToAirdrop = input.reduce((prev, curr) => {
         return prev + Number(curr?.quantity || 1);
@@ -403,7 +410,10 @@ export class Erc1155<
    * @returns The NFT metadata for all NFTs in the contract.
    * @twfeature ERC1155Enumerable
    */
-  public async getOwned(walletAddress?: string): Promise<NFT[]> {
+  public async getOwned(walletAddress?: AddressOrEns): Promise<NFT[]> {
+    if (walletAddress) {
+      walletAddress = await resolveAddress(walletAddress);
+    }
     return assertEnabled(this.query, FEATURE_EDITION_ENUMERABLE).owned(
       walletAddress,
     );
@@ -482,7 +492,7 @@ export class Erc1155<
    */
   mintTo = buildTransactionFunction(
     async (
-      receiver: string,
+      receiver: AddressOrEns,
       metadataWithSupply: EditionMetadataOrUri,
     ): Promise<Transaction<TransactionResultWithId<NFT>>> => {
       return assertEnabled(this.mintable, FEATURE_EDITION_MINTABLE).to.prepare(
@@ -502,7 +512,7 @@ export class Erc1155<
    * @twfeature ERC1155Mintable
    */
   public async getMintTransaction(
-    receiver: string,
+    receiver: AddressOrEns,
     metadataWithSupply: EditionMetadataOrUri,
   ): Promise<Transaction> {
     return assertEnabled(
@@ -551,7 +561,7 @@ export class Erc1155<
    */
   mintAdditionalSupplyTo = buildTransactionFunction(
     async (
-      receiver: string,
+      receiver: AddressOrEns,
       tokenId: BigNumberish,
       additionalSupply: BigNumberish,
     ): Promise<Transaction<TransactionResultWithId<NFT>>> => {
@@ -642,7 +652,7 @@ export class Erc1155<
    */
   mintBatchTo = buildTransactionFunction(
     async (
-      receiver: string,
+      receiver: AddressOrEns,
       metadataWithSupply: EditionMetadataOrUri[],
     ): Promise<Transaction<TransactionResultWithId<NFT>[]>> => {
       return assertEnabled(
@@ -705,7 +715,11 @@ export class Erc1155<
    * @twfeature ERC1155Burnable
    */
   burnFrom = buildTransactionFunction(
-    async (account: string, tokenId: BigNumberish, amount: BigNumberish) => {
+    async (
+      account: AddressOrEns,
+      tokenId: BigNumberish,
+      amount: BigNumberish,
+    ) => {
       return assertEnabled(
         this.burnable,
         FEATURE_EDITION_BURNABLE,
@@ -765,7 +779,7 @@ export class Erc1155<
    */
   burnBatchFrom = buildTransactionFunction(
     async (
-      account: string,
+      account: AddressOrEns,
       tokenIds: BigNumberish[],
       amounts: BigNumberish[],
     ) => {
@@ -832,7 +846,7 @@ export class Erc1155<
    * @deprecated Use `contract.erc1155.claim.prepare(...args)` instead
    */
   public async getClaimTransaction(
-    destinationAddress: string,
+    destinationAddress: AddressOrEns,
     tokenId: BigNumberish,
     quantity: BigNumberish,
     options?: ClaimOptions,
@@ -919,7 +933,7 @@ export class Erc1155<
    */
   claimTo = buildTransactionFunction(
     async (
-      destinationAddress: string,
+      destinationAddress: AddressOrEns,
       tokenId: BigNumberish,
       quantity: BigNumberish,
       options?: ClaimOptions,

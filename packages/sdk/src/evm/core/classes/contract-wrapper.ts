@@ -22,8 +22,9 @@ import {
   EventType,
 } from "../../constants";
 import {
-  AbiSchema,
+  Address,
   CallOverrideSchema,
+  AbiSchema,
   ContractSource,
   SDKOptions,
 } from "../../schema";
@@ -114,7 +115,7 @@ export class ContractWrapper<
   /**
    * @internal
    */
-  public async getSignerAddress(): Promise<string> {
+  public async getSignerAddress(): Promise<Address> {
     const signer = this.getSigner();
     if (!signer) {
       throw new Error(
@@ -287,7 +288,7 @@ export class ContractWrapper<
     try {
       if (args.length > 0 && typeof args[args.length - 1] === "object") {
         const last = args[args.length - 1];
-        txOptions = CallOverrideSchema.parse(last);
+        txOptions = await CallOverrideSchema.parseAsync(last);
         // if call overrides found, remove it from args array
         args = args.slice(0, args.length - 1);
       }

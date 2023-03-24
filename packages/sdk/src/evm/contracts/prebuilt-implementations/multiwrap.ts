@@ -3,10 +3,13 @@ import {
   fetchCurrencyMetadata,
   hasERC20Allowance,
   normalizePriceValue,
-} from "../../common/currency";
+} from "../../common";
+import { resolveAddress } from "../../common/ens";
 import { isTokenApprovedForTransfer } from "../../common/marketplace";
 import { uploadOrExtractURI } from "../../common/nft";
+import { buildTransactionFunction } from "../../common/transactions";
 import {
+  ContractAppURI,
   ContractEncoder,
   ContractEvents,
   ContractMetadata,
@@ -17,11 +20,16 @@ import {
   GasCostEstimator,
   Transaction,
   NetworkInput,
-  TransactionResult,
   TransactionResultWithId,
 } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
-import { Abi, SDKOptions } from "../../schema";
+import {
+  Abi,
+  AbiInput,
+  AbiSchema,
+  AddressOrEns,
+  SDKOptions,
+} from "../../schema";
 import { MultiwrapContractSchema } from "../../schema/contracts/multiwrap";
 import {
   ERC1155Wrappable,
@@ -68,6 +76,7 @@ export class Multiwrap extends StandardErc721<MultiwrapContract> {
     MultiwrapContract,
     typeof MultiwrapContractSchema
   >;
+  public app: ContractAppURI<MultiwrapContract>;
   public events: ContractEvents<MultiwrapContract>;
   public roles: ContractRoles<
     MultiwrapContract,
@@ -102,7 +111,7 @@ export class Multiwrap extends StandardErc721<MultiwrapContract> {
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<MultiwrapContract>(
       network,
@@ -113,13 +122,17 @@ export class Multiwrap extends StandardErc721<MultiwrapContract> {
   ) {
     super(contractWrapper, storage, chainId);
 
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi || []);
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       MultiwrapContractSchema,
       this.storage,
     );
-
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
+      this.storage,
+    );
     this.roles = new ContractRoles(
       this.contractWrapper,
       Multiwrap.contractRoles,
@@ -232,38 +245,44 @@ export class Multiwrap extends StandardErc721<MultiwrapContract> {
    * @param wrappedTokenMetadata - metadata to represent the wrapped token bundle
    * @param recipientAddress - Optional. The address to send the wrapped token bundle to
    */
-  public async wrap(
-    contents: TokensToWrap,
-    wrappedTokenMetadata: NFTMetadataOrUri,
-    recipientAddress?: string,
-  ): Promise<TransactionResultWithId<NFT>> {
-    const uri = await uploadOrExtractURI(wrappedTokenMetadata, this.storage);
+  wrap = buildTransactionFunction(
+    async (
+      contents: TokensToWrap,
+      wrappedTokenMetadata: NFTMetadataOrUri,
+      recipientAddress?: AddressOrEns,
+    ): Promise<Transaction<TransactionResultWithId<NFT>>> => {
+      const uri = await uploadOrExtractURI(wrappedTokenMetadata, this.storage);
 
-    const recipient = recipientAddress
-      ? recipientAddress
-      : await this.contractWrapper.getSignerAddress();
+      const recipient = await resolveAddress(
+        recipientAddress
+          ? recipientAddress
+          : await this.contractWrapper.getSignerAddress(),
+      );
 
-    const tokens = await this.toTokenStructList(contents);
-    const receipt = await this.contractWrapper.sendTransaction("wrap", [
-      tokens,
-      uri,
-      recipient,
-    ]);
+      const tokens = await this.toTokenStructList(contents);
 
-    const event = this.contractWrapper.parseLogs<TokensWrappedEvent>(
-      "TokensWrapped",
-      receipt?.logs,
-    );
-    if (event.length === 0) {
-      throw new Error("TokensWrapped event not found");
-    }
-    const tokenId = event[0].args.tokenIdOfWrappedToken;
-    return {
-      id: tokenId,
-      receipt,
-      data: () => this.get(tokenId),
-    };
-  }
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "wrap",
+        args: [tokens, uri, recipient],
+        parse: (receipt) => {
+          const event = this.contractWrapper.parseLogs<TokensWrappedEvent>(
+            "TokensWrapped",
+            receipt?.logs,
+          );
+          if (event.length === 0) {
+            throw new Error("TokensWrapped event not found");
+          }
+          const tokenId = event[0].args.tokenIdOfWrappedToken;
+          return {
+            id: tokenId,
+            receipt,
+            data: () => this.get(tokenId),
+          };
+        },
+      });
+    },
+  );
 
   /**
    * Unwrap a wrapped token bundle, and retrieve its contents
@@ -274,20 +293,21 @@ export class Multiwrap extends StandardErc721<MultiwrapContract> {
    * @param wrappedTokenId - the id of the wrapped token bundle
    * @param recipientAddress - Optional. The address to send the unwrapped tokens to
    */
-  public async unwrap(
-    wrappedTokenId: BigNumberish,
-    recipientAddress?: string,
-  ): Promise<TransactionResult> {
-    const recipient = recipientAddress
-      ? recipientAddress
-      : await this.contractWrapper.getSignerAddress();
-    return {
-      receipt: await this.contractWrapper.sendTransaction("unwrap", [
-        wrappedTokenId,
-        recipient,
-      ]),
-    };
-  }
+  unwrap = buildTransactionFunction(
+    async (wrappedTokenId: BigNumberish, recipientAddress?: AddressOrEns) => {
+      const recipient = await resolveAddress(
+        recipientAddress
+          ? recipientAddress
+          : await this.contractWrapper.getSignerAddress(),
+      );
+
+      return Transaction.fromContractWrapper({
+        contractWrapper: this.contractWrapper,
+        method: "unwrap",
+        args: [wrappedTokenId, recipient],
+      });
+    },
+  );
 
   /** ******************************
    * PRIVATE FUNCTIONS

@@ -3,18 +3,18 @@ import { NFT, NFTMetadata, NFTMetadataOrUri } from "../../../core/schema/nft";
 import { getRoleHash } from "../../common";
 import { buildTransactionFunction } from "../../common/transactions";
 import {
+  ContractAppURI,
   ContractEncoder,
   ContractEvents,
   ContractInterceptor,
   ContractMetadata,
+  ContractRoles,
   ContractOwner,
   ContractPlatformFee,
-  ContractRoles,
   ContractRoyalty,
   ContractPrimarySale,
   DropErc1155ClaimConditions,
   DropErc1155History,
-  Erc1155,
   StandardErc1155,
   GasCostEstimator,
   Transaction,
@@ -23,7 +23,15 @@ import {
 } from "../../core";
 import { ContractWrapper } from "../../core/classes/contract-wrapper";
 import { PaperCheckout } from "../../integrations/thirdweb-checkout";
-import { Abi, DropErc1155ContractSchema, SDKOptions } from "../../schema";
+import {
+  Address,
+  AddressOrEns,
+  Abi,
+  AbiInput,
+  AbiSchema,
+  DropErc1155ContractSchema,
+  SDKOptions,
+} from "../../schema";
 import { PrebuiltEditionDrop } from "../../types/eips";
 import { ThirdwebStorage, UploadProgressEvent } from "@thirdweb-dev/storage";
 import { BigNumber, BigNumberish, CallOverrides, constants } from "ethers";
@@ -55,6 +63,7 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
     PrebuiltEditionDrop,
     typeof DropErc1155ContractSchema
   >;
+  public app: ContractAppURI<PrebuiltEditionDrop>;
   public roles: ContractRoles<
     PrebuiltEditionDrop,
     (typeof EditionDrop.contractRoles)[number]
@@ -114,7 +123,6 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
 
   public history: DropErc1155History;
   public interceptor: ContractInterceptor<PrebuiltEditionDrop>;
-  public erc1155: Erc1155<PrebuiltEditionDrop>;
   public owner: ContractOwner<PrebuiltEditionDrop>;
 
   constructor(
@@ -122,7 +130,7 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
     address: string,
     storage: ThirdwebStorage,
     options: SDKOptions = {},
-    abi: Abi,
+    abi: AbiInput,
     chainId: number,
     contractWrapper = new ContractWrapper<PrebuiltEditionDrop>(
       network,
@@ -132,10 +140,15 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
     ),
   ) {
     super(contractWrapper, storage, chainId);
-    this.abi = abi;
+    this.abi = AbiSchema.parse(abi);
     this.metadata = new ContractMetadata(
       this.contractWrapper,
       DropErc1155ContractSchema,
+      this.storage,
+    );
+    this.app = new ContractAppURI(
+      this.contractWrapper,
+      this.metadata,
       this.storage,
     );
     this.roles = new ContractRoles(
@@ -155,7 +168,6 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
     this.estimator = new GasCostEstimator(this.contractWrapper);
     this.platformFees = new ContractPlatformFee(this.contractWrapper);
     this.interceptor = new ContractInterceptor(this.contractWrapper);
-    this.erc1155 = new Erc1155(this.contractWrapper, this.storage, chainId);
     this.checkout = new PaperCheckout(this.contractWrapper);
     this.owner = new ContractOwner(this.contractWrapper);
   }
@@ -167,7 +179,7 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
     this.contractWrapper.updateSignerOrProvider(network);
   }
 
-  getAddress(): string {
+  getAddress(): Address {
     return this.contractWrapper.readContract.address;
   }
 
@@ -209,7 +221,7 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
    *
    * @returns The NFT metadata for all NFTs in the contract.
    */
-  public async getOwned(walletAddress?: string): Promise<NFT[]> {
+  public async getOwned(walletAddress?: AddressOrEns): Promise<NFT[]> {
     return this.erc1155.getOwned(walletAddress);
   }
 
@@ -286,7 +298,7 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
    * @deprecated Use `contract.erc1155.claim.prepare(...args)` instead
    */
   public async getClaimTransaction(
-    destinationAddress: string,
+    destinationAddress: AddressOrEns,
     tokenId: BigNumberish,
     quantity: BigNumberish,
     checkERC20Allowance = true, // TODO split up allowance checks
@@ -324,7 +336,7 @@ export class EditionDrop extends StandardErc1155<PrebuiltEditionDrop> {
    */
   claimTo = buildTransactionFunction(
     async (
-      destinationAddress: string,
+      destinationAddress: AddressOrEns,
       tokenId: BigNumberish,
       quantity: BigNumberish,
       checkERC20Allowance = true,
